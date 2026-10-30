@@ -1,0 +1,73 @@
+{
+  "algorithm": "genz_lio",
+  "variant": "default",
+  "params": {},
+  "sequence": "narrowwide/tracked-01",
+  "repeat": 0,
+  "rate": 1.0,
+  "status": "ok",
+  "reasons": [],
+  "settings": {
+    "rate": 1.0,
+    "startup_timeout": 30.0,
+    "drain_timeout": 15.0,
+    "warmup": 2.0,
+    "divergence": {
+      "max_speed": 20,
+      "max_jump": 5,
+      "min_coverage": 0.9,
+      "max_ate": 10
+    },
+    "rpe": {
+      "delta": 10,
+      "unit": "m"
+    },
+    "duration": null
+  },
+  "started": "2026-10-29 16:10:40",
+  "applied_params": {
+    "common.lidar_topic": "/liobench/lidar",
+    "common.imu_topic": "/liobench/imu",
+    "preprocess.lidar_type": "livox",
+    "preprocess.scan_line": 1,
+    "mapping.extrinsic_t": [
+      -0.017062,
+      -0.003617,
+      -0.019032
+    ],
+    "mapping.extrinsic_r": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "mapping.extrinsic_est_en": false,
+    "publish.scan_publish_en": false,
+    "publish.path_en": false,
+    "publish.scan_semantic_publish_en": false
+  },
+  "algo_exit_code": 0,
+  "wall_s": 622.2577235579993,
+  "lidar_frames": 6215,
+  "odom_msgs": 6213,
+  "frames_done": 6213,
+  "latency_mean_ms": 15.414248672135058,
+  "latency_p95_ms": 24.514600000838964,
+  "latency_max_ms": 75.69000000148662,
+  "path_length_m": 265.95803606374574,
+  "cpu_mean_pct": 340.9118521560575,
+  "cpu_p95_pct": 507.9359999999995,
+  "peak_rss_mb": 1170.78,
+  "has_gt": true,
+  "finished": "2026-10-30 10:37:53",
+  "ate_rmse_m": 0.12459903335100812,
+  "gt_matched": 6211,
+  "gt_coverage": 1.0,
+  "rpe_trans_m": 0.3135725972758821,
+  "rpe_rot_deg": 2.0640116554880286
+}

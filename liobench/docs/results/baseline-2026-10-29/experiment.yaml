@@ -1,0 +1,23 @@
+# All algorithms, default parameters, all NarrowWide sequences that are present locally.
+name: baseline
+algorithms:
+  - first_lio
+  - name: first_lio
+    params: {update_strategy: [pointwise]}
+  - point_lio
+  - batch_lio
+  - small_point_lio
+  - super_lio
+  - genz_lio
+sequences: [narrowwide/tracked-01]
+repeats: 1
+rate: 1.0                 # real time; >1 stresses the algorithms and inflates latency
+startup_timeout: 30       # s for the node to subscribe to LiDAR and IMU
+warmup: 2                 # s between subscription and playback
+drain_timeout: 15         # s to wait for the last odometry after playback ends
+rpe: {delta: 10, unit: m} # RPE window
+divergence:
+  max_speed: 20           # m/s between consecutive poses
+  max_jump: 5             # m between consecutive poses
+  min_coverage: 0.9       # scans with odometry / scans played
+  max_ate: 10             # m, only with ground truth

@@ -1,0 +1,77 @@
+{
+  "algorithm": "small_point_lio",
+  "variant": "default",
+  "params": {},
+  "sequence": "narrowwide/tracked-01",
+  "repeat": 0,
+  "rate": 1.0,
+  "status": "diverged",
+  "reasons": [
+    "\u4f4d\u7f6e\u8df3\u53d8 36.72 m > 5 m",
+    "\u901f\u5ea6 343.6 m/s > 20 m/s",
+    "ATE 10033.52 m > 10 m"
+  ],
+  "settings": {
+    "rate": 1.0,
+    "startup_timeout": 30.0,
+    "drain_timeout": 15.0,
+    "warmup": 2.0,
+    "divergence": {
+      "max_speed": 20,
+      "max_jump": 5,
+      "min_coverage": 0.9,
+      "max_ate": 10
+    },
+    "rpe": {
+      "delta": 10,
+      "unit": "m"
+    },
+    "duration": null
+  },
+  "started": "2026-10-29 15:49:44",
+  "applied_params": {
+    "lidar_topic": "/liobench/lidar",
+    "imu_topic": "/liobench/imu",
+    "lidar_type": "livox_custom_msg",
+    "min_distance": 0.5,
+    "acc_norm": 9.81,
+    "satu_acc": 150.0,
+    "satu_gyro": 35.0,
+    "extrinsic_T": [
+      -0.017062,
+      -0.003617,
+      -0.019032
+    ],
+    "extrinsic_R": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "extrinsic_est_en": false
+  },
+  "algo_exit_code": 0,
+  "wall_s": 622.2527357089994,
+  "lidar_frames": 6215,
+  "odom_msgs": 6216,
+  "frames_done": 6204,
+  "latency_mean_ms": 0.9533995809267366,
+  "latency_p95_ms": 1.4348500002142823,
+  "latency_max_ms": 4.999000000680098,
+  "path_length_m": 47047.56226033004,
+  "cpu_mean_pct": 2.993844262295082,
+  "cpu_p95_pct": 7.85,
+  "peak_rss_mb": 140.09,
+  "has_gt": true,
+  "finished": "2026-10-30 10:37:53",
+  "ate_rmse_m": 10033.523188269706,
+  "gt_matched": 6203,
+  "gt_coverage": 0.9987119626469168,
+  "rpe_trans_m": 24.02010962138785,
+  "rpe_rot_deg": 0.8760071568469788
+}

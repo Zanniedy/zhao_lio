@@ -1,0 +1,23 @@
+# 所有算法、默认参数、所有已转换的 NarrowWide 序列
+name: baseline
+algorithms:
+  - zhao_lio                             # 默认是 pointwise_prematch
+  - name: zhao_lio
+    params: {update_strategy: [pointwise]}
+  - point_lio
+  - batch_lio
+  - small_point_lio
+  - super_lio
+  - genz_lio
+sequences: [narrowwide/*]
+repeats: 1
+rate: 1.0                 # 实时播放；大于 1 会给算法加压，延迟也会变大
+startup_timeout: 30       # 秒：等算法订阅雷达和 IMU 话题的时间
+warmup: 2                 # 秒：订阅成功后再等一会儿才开始播放
+drain_timeout: 15         # 秒：播放结束后等最后几帧里程计的时间
+rpe: {delta: 10, unit: m} # RPE 窗口
+divergence:
+  max_speed: 20           # m/s：相邻两个位姿之间的速度上限
+  max_jump: 5             # m：相邻两个位姿之间的位移上限
+  min_coverage: 0.9       # 有里程计输出的帧 / 播放的帧
+  max_ate: 10             # m：只在有真值时检查

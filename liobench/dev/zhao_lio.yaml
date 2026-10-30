@@ -1,0 +1,29 @@
+# zhao_lio 的开发循环：  liobench dev dev/zhao_lio.yaml --note "这一版改了什么"
+name: zhao_lio
+
+# 1. 编译：在 build_dir 里执行，已 source ROS，并去掉了 conda 的 PATH
+build_dir: ..                       # 仓库根目录
+build: >-
+  source $LIOBENCH_LIVOX/setup.bash &&
+  colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release
+
+# 2. 每个版本给这个目录存一份源码快照（用 liobench restore 取回），也用来判断"代码有没有变"
+source_dir: ../src
+
+# 3. 每个版本都跑的测试
+experiment: experiments/dev_zhao_lio.yaml
+
+# 4. 和谁比：previous（上一版）| best（历史最好的通过版）| 某个版本名
+reference: previous
+primary: ate_rmse_m          # 按哪个指标评"最好"（越小越好）
+
+# 5. 验收门槛：每个配置分别检查，任何一条不通过，这一版就判为不通过
+#    max / min：绝对上下限；max_increase_pct / max_decrease_pct：相对参考版本的变化幅度
+#    没有数据的指标会跳过，不算失败（比如还没有真值时的 ATE）
+gates:
+  success_rate:     {min: 1.0}                 # 任何序列都不能发散
+  ate_rmse_m:       {max_increase_pct: 5}      # 精度最多变差 5%
+  rpe_trans_m:      {max_increase_pct: 10}
+  internal_mean_ms: {max: 2.0, max_increase_pct: 20}
+  latency_p95_ms:   {max: 20}
+  peak_rss_mb:      {max: 500}

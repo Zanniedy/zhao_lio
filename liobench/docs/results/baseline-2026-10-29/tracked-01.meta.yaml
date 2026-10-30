@@ -1,0 +1,36 @@
+fingerprint: b892dc998115
+converter_version: 1
+converted: '2026-10-30 10:37:52'
+source:
+  bag: /home/lsy/datasets/tracked-01/tracked-01_ros2
+  gt:
+    format: tum
+  lidar:
+    topic: /livox/lidar
+    decoder: livox_custom
+    time_base: header
+  imu:
+    topic: /vectornav/IMU
+    decoder: imu
+    acc_unit: m/s2
+sensor:
+  lidar_topic: /liobench/lidar
+  lidar_msg: livox_ros_driver2/msg/CustomMsg
+  lidar_type: livox_custom
+  imu_topic: /liobench/imu
+  acc_norm: 9.81
+  scan_lines: 1
+  scan_rate: 10.016
+stats:
+  scans: 6215
+  imu: 124307
+  points: 62050560
+  empty_scans: 0
+  points_per_scan: 9984.0
+  scan_duration_ms: 99.83
+  duration_s: 621.4
+  convert_s: 6.7
+gt:
+  poses: 6211
+  start: 1762397696.50178
+  end: 1762398317.50178

@@ -1,0 +1,24 @@
+# zhao_lio（本仓库）：Super-LIO 前端 + small_point_lio 30 维 ESKF，更新策略可切换
+package: zhao_lio_ros2
+executable: zhao_lio_node
+workspace: ../install                 # 仓库根目录的 colcon 工作空间
+extra_setup: [$LIOBENCH_LIVOX/setup.bash]
+config:
+  mode: ros_params
+  base: ../src/zhao_lio_ros2/config/tracked.yaml
+  node_key: "/**"
+lidar_types: {livox_custom: livox_custom}
+sensor:
+  lidar_topic: "{lidar_topic}"
+  imu_topic: "{imu_topic}"
+  lidar_type: "{lidar_type}"
+  blind_min: "{blind}"
+  acc_norm: "{acc_norm}"
+  satu_acc: "{satu_acc}"
+  satu_gyro: "{satu_gyro}"
+  extrinsic_T: "{extrinsic_t}"
+  extrinsic_R: "{extrinsic_r}"
+fixed:
+  extrinsic_est_en: false
+odom_topic: /zhao_lio/odom
+timing: {param: timing_csv, column: total_ms}   # internal per-frame timing, ms

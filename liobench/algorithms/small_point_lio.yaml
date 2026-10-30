@@ -1,0 +1,27 @@
+# small_point_lio: publishes odometry at near-IMU rate, stamped at the last processed measurement.
+package: small_point_lio
+executable: small_point_lio_node
+workspace: ws/install
+extra_setup: [$LIOBENCH_LIVOX/setup.bash]
+config:
+  mode: ros_params
+  base: $LIOBENCH_REFS/small_point_lio/config/mid360.yaml
+  node_key: small_point_lio
+lidar_types: {livox_custom: livox_custom_msg}
+sensor:
+  lidar_topic: "{lidar_topic}"
+  imu_topic: "{imu_topic}"
+  lidar_type: "{lidar_type}"
+  min_distance: "{blind}"
+  acc_norm: "{acc_norm}"
+  satu_acc: "{satu_acc}"
+  satu_gyro: "{satu_gyro}"
+  extrinsic_T: "{extrinsic_t}"
+  extrinsic_R: "{extrinsic_r}"
+fixed:
+  extrinsic_est_en: false
+# Keep the upstream 0.1 m downsample/map resolution: 0.5 m drifts by tens of metres on NarrowWide.
+# Output pose is composed with TF lidar_frame -> robot_base_frame; publish identity.
+helpers:
+  - ros2 run tf2_ros static_transform_publisher --frame-id base_link --child-frame-id livox_frame
+odom_topic: /Odometry

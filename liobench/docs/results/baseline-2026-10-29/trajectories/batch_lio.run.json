@@ -1,0 +1,79 @@
+{
+  "algorithm": "batch_lio",
+  "variant": "default",
+  "params": {},
+  "sequence": "narrowwide/tracked-01",
+  "repeat": 0,
+  "rate": 1.0,
+  "status": "ok",
+  "reasons": [],
+  "settings": {
+    "rate": 1.0,
+    "startup_timeout": 30.0,
+    "drain_timeout": 15.0,
+    "warmup": 2.0,
+    "divergence": {
+      "max_speed": 20,
+      "max_jump": 5,
+      "min_coverage": 0.9,
+      "max_ate": 10
+    },
+    "rpe": {
+      "delta": 10,
+      "unit": "m"
+    },
+    "duration": null
+  },
+  "started": "2026-10-29 15:39:17",
+  "applied_params": {
+    "common.lid_topic": "/liobench/lidar",
+    "common.imu_topic": "/liobench/imu",
+    "preprocess.lidar_type": 1,
+    "preprocess.scan_line": 1,
+    "preprocess.blind": 0.5,
+    "mapping.acc_norm": 9.81,
+    "mapping.satu_acc": 150.0,
+    "mapping.satu_gyro": 35.0,
+    "mapping.extrinsic_T": [
+      -0.017062,
+      -0.003617,
+      -0.019032
+    ],
+    "mapping.extrinsic_R": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "mapping.extrinsic_est_en": false,
+    "publish.scan_publish_en": false,
+    "publish.path_en": false,
+    "batch_dt": 0.001,
+    "batch_omp": true,
+    "batch_deskew": true
+  },
+  "algo_exit_code": 0,
+  "wall_s": 622.3121609279997,
+  "lidar_frames": 6215,
+  "odom_msgs": 6210,
+  "frames_done": 6210,
+  "latency_mean_ms": 5.355806602255466,
+  "latency_p95_ms": 8.651550000286079,
+  "latency_max_ms": 16.662999999425665,
+  "path_length_m": 317.38337155962074,
+  "cpu_mean_pct": 139.86685808039377,
+  "cpu_p95_pct": 177.05900000000003,
+  "peak_rss_mb": 173.83,
+  "has_gt": true,
+  "finished": "2026-10-30 10:37:52",
+  "ate_rmse_m": 0.19171427254123427,
+  "gt_matched": 6209,
+  "gt_coverage": 0.9996779906617292,
+  "rpe_trans_m": 0.23953753340179185,
+  "rpe_rot_deg": 1.9580937427081349
+}

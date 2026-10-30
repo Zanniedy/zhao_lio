@@ -1,0 +1,8 @@
+algorithm,variant,runs,ok,success_rate,divergence_rate,sequences
+batch_lio,default,1,1,1.0,0.0,1
+first_lio,default,1,1,1.0,0.0,1
+first_lio,update_strategy=pointwise,1,1,1.0,0.0,1
+genz_lio,default,1,1,1.0,0.0,1
+point_lio,default,1,1,1.0,0.0,1
+small_point_lio,default,1,0,0.0,1.0,1
+super_lio,default,1,1,1.0,0.0,1

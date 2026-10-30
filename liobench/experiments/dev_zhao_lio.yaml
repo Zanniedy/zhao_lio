@@ -1,0 +1,12 @@
+# zhao_lio 每个开发版本都要跑的测试（见 dev/zhao_lio.yaml）
+# 控制在能经常跑的规模；有新序列就加进来
+name: dev_zhao_lio
+algorithms:
+  - name: zhao_lio
+    params:
+      update_strategy: [pointwise, pointwise_prematch]
+sequences: [narrowwide/*]       # 所有已转换的序列，未转换的会跳过
+repeats: 1
+rate: 1.0
+rpe: {delta: 10, unit: m}
+divergence: {max_speed: 20, max_jump: 5, min_coverage: 0.9, max_ate: 10}

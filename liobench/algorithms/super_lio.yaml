@@ -1,0 +1,22 @@
+# Super-LIO: whole-scan deskew + iterated ESKF, OctVox map. Rescales IMU units itself.
+# lio.extrinsic.lidar_imu is [t(3), R(9)] with R read column-major.
+package: super_lio
+executable: super_lio_node
+workspace: ws/install
+extra_setup: [$LIOBENCH_LIVOX/setup.bash]
+config:
+  mode: ros_params
+  base: $LIOBENCH_REFS/Super-LIO/src/super_lio/config/mid360.yaml
+  node_key: "/**"
+lidar_types: {livox_custom: 1}
+sensor:
+  lio.ros.lidar_topic: "{lidar_topic}"
+  lio.ros.imu_topic: "{imu_topic}"
+  lio.sensor.lidar_type: "{lidar_type}"
+  lio.sensor.blind: "{blind}"
+  lio.extrinsic.lidar_imu: "{extrinsic_tr_colmajor}"
+fixed:
+  lio.output.robot: false     # no mavros pose
+  lio.output.map: false       # no visualization output
+  lio.output.dense: false
+odom_topic: /lio/odom

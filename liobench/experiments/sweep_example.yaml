@@ -1,0 +1,9 @@
+# 参数扫描示例：每个列表值是一个配置，总运行次数 = 配置数 × 序列数 × 重复次数
+name: sweep_zhao_lio
+algorithms:
+  - name: zhao_lio
+    params:
+      update_strategy: [pointwise, pointwise_prematch]
+      downsample_size: [0.2, 0.5]
+sequences: [narrowwide/tracked-01]
+repeats: 3

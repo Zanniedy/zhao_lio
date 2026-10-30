@@ -1,0 +1,26 @@
+# Point-LIO (hku-mars), IMU-as-output model, per-scan odometry stamped at scan end.
+package: point_lio
+executable: pointlio_mapping
+workspace: ws/install
+extra_setup: [$LIOBENCH_LIVOX/setup.bash]   # livox_ros_driver2
+config:
+  mode: ros_params
+  base: $LIOBENCH_REFS/Point-LIO/config/avia.yaml
+  node_key: "/**"
+lidar_types: {livox_custom: 1}
+sensor:
+  common.lid_topic: "{lidar_topic}"
+  common.imu_topic: "{imu_topic}"
+  preprocess.lidar_type: "{lidar_type}"
+  preprocess.scan_line: "{scan_lines}"        # points with line >= scan_line are dropped
+  preprocess.blind: "{blind}"
+  mapping.acc_norm: "{acc_norm}"
+  mapping.satu_acc: "{satu_acc}"
+  mapping.satu_gyro: "{satu_gyro}"
+  mapping.extrinsic_T: "{extrinsic_t}"
+  mapping.extrinsic_R: "{extrinsic_r}"
+fixed:
+  mapping.extrinsic_est_en: false
+  publish.scan_publish_en: false     # no visualization output
+  publish.path_en: false
+odom_topic: /aft_mapped_to_init

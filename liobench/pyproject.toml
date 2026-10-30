@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "liobench"
+version = "0.1.0"
+description = "Black-box benchmark harness for ROS2 LiDAR-inertial odometry"
+requires-python = ">=3.10"
+dependencies = ["evo>=1.30", "psutil>=5.9", "pyyaml>=6", "numpy"]
+
+[project.optional-dependencies]
+test = ["pytest"]
+
+[project.scripts]
+liobench = "liobench.cli:main"
+
+[tool.setuptools]
+packages = ["liobench"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

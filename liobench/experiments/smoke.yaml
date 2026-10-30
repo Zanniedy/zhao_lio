@@ -1,0 +1,7 @@
+# 冒烟测试：检查每个算法都能启动、收到数据并输出里程计。每个包只播前 30 秒
+name: smoke
+algorithms: [zhao_lio, point_lio, batch_lio, small_point_lio, super_lio, genz_lio]
+sequences: [narrowwide/tracked-01]
+duration: 30
+rate: 1.0
+divergence: {min_coverage: 0.5}

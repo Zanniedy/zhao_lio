@@ -1,0 +1,10 @@
+.venv/
+*.egg-info/
+__pycache__/
+.pytest_cache/
+/ws/build/
+/ws/install/
+/ws/log/
+/ws/build.log
+/results/
+/ws/src/

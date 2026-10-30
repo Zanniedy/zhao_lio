@@ -1,0 +1,36 @@
+# NarrowWide（POSTECH COCEL），https://github.com/cocel-postech/NarrowWide
+# 履带机器人：Livox MID-70（CustomMsg，10 Hz）+ VectorNav VN-100（200 Hz，m/s²）
+# 真值：VN-100 IMU 坐标系下的 TUM 文件（从数据集 README 的链接下载）
+#
+# `liobench convert narrowwide` 把每个原始包转成标准格式，放在 `output` 下面。
+# 运行时只读转换后的数据；改了 `source` 或加了真值文件后，要重新运行 convert。
+
+output: ~/datasets/liobench/narrowwide
+
+source:                       # 怎么读原始数据（所有序列的默认设置）
+  lidar:
+    topic: /livox/lidar
+    decoder: livox_custom
+    time_base: header         # 这批包的 timebase 是设备上电时间，改用 header.stamp
+  imu:
+    topic: /vectornav/IMU
+    decoder: imu
+    acc_unit: m/s2
+  gt:
+    format: tum               # 已经是 IMU 坐标系，不需要 imu_T_gt
+
+sensor:                       # 传给算法的值（话题和单位来自转换后的数据）
+  satu_acc: 150.0             # m/s^2
+  satu_gyro: 35.0             # rad/s
+  blind: 0.5                  # m，最近距离盲区
+  # 雷达在 IMU 坐标系下的位姿（T_imu_lidar），取自 genz-lio 作者的 NarrowWide 配置
+  extrinsic_t: [-0.017062, -0.003617, -0.019032]
+  extrinsic_r: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+sequences:
+  tracked-01:
+    bag: ~/datasets/tracked-01/tracked-01_ros2
+    gt: ~/datasets/narrowwide/gt/gt_tracked-01.txt
+  tracked-02:
+    bag: ~/datasets/narrowwide/raw/Tracked-02
+    gt: ~/datasets/narrowwide/gt/gt_tracked-02.txt

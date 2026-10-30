@@ -1,0 +1,24 @@
+# GenZ-LIO: config is a plain yaml read by yaml-cpp, passed via the config_path ROS param.
+# Base is the authors' NarrowWide Tracked config; only sensor fields are overridden.
+package: genz_lio
+executable: genz_lio_node
+workspace: ws/install
+extra_setup: [$LIOBENCH_LIVOX/setup.bash]
+config:
+  mode: yaml_file
+  base: $LIOBENCH_REFS/genz-lio/ros/config/experiments/narrowwide/mid70_tracked_01.yaml
+  path_param: config_path
+lidar_types: {livox_custom: livox}
+sensor:
+  common.lidar_topic: "{lidar_topic}"
+  common.imu_topic: "{imu_topic}"
+  preprocess.lidar_type: "{lidar_type}"
+  preprocess.scan_line: "{scan_lines}"        # points with line >= scan_line are dropped
+  mapping.extrinsic_t: "{extrinsic_t}"
+  mapping.extrinsic_r: "{extrinsic_r}"
+fixed:
+  mapping.extrinsic_est_en: false
+  publish.scan_publish_en: false
+  publish.path_en: false
+  publish.scan_semantic_publish_en: false
+odom_topic: /Odometry

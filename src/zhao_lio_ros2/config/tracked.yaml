@@ -1,0 +1,48 @@
+/**:
+  ros__parameters:
+    lidar_topic: /livox/lidar
+    imu_topic: /vectornav/IMU
+    lidar_type: livox_custom          # livox_custom | pointcloud2
+    odom_frame: odom
+    body_frame: body
+    traj_path: ""                     # TUM output, empty = off
+    timing_csv: ""                    # per-frame timing CSV, empty = off
+
+    update_strategy: pointwise_prematch   # pointwise | pointwise_prematch
+    num_threads: 0
+    publish_pointwise_odom: false
+
+    blind_min: 0.5
+    blind_max: 100.0
+    point_filter_num: 1
+    downsample_size: 0.5
+    downsample_parallel: false
+    map_resolution: 0.5
+    map_capacity: 1000000
+    init_map_frames: 3
+
+    plane_thr: 0.1
+    match_s: 81.0
+    rematch_thr: 0.1
+
+    laser_point_cov: 0.01
+    imu_meas_omg_cov: 0.01
+    imu_meas_acc_cov: 0.01
+    vel_cov: 20.0
+    omg_cov: 1000.0
+    acc_cov: 500.0
+    bg_cov: 0.0001
+    ba_cov: 0.0001
+
+    gravity_norm: 9.81
+    acc_norm: 9.81                    # external IMU in m/s^2
+    check_satu: true
+    satu_gyro: 35.0
+    satu_acc: 150.0
+    imu_init_num: 100
+
+    extrinsic_est_en: false
+    extrinsic_T: [0.0, 0.0, 0.0]            # unknown for this dataset
+    extrinsic_R: [1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, 1.0]
