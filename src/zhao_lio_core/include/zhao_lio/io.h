@@ -1,8 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <fstream>
 #include <iomanip>
 #include <string>
+#include <vector>
 
 #include <Eigen/Geometry>
 
@@ -43,5 +45,17 @@ class TimingCsv {
  private:
   std::ofstream f_;
 };
+
+// Binary PCD v0.7 with x y z float fields. Returns false if the file cannot be written.
+inline bool write_pcd(const std::string& path, const std::vector<Eigen::Vector3f>& pts) {
+  std::ofstream f(path, std::ios::binary);
+  if (!f) return false;
+  f << "# .PCD v0.7 - Point Cloud Data file format\n"
+    << "VERSION 0.7\nFIELDS x y z\nSIZE 4 4 4\nTYPE F F F\nCOUNT 1 1 1\n"
+    << "WIDTH " << pts.size() << "\nHEIGHT 1\nVIEWPOINT 0 0 0 1 0 0 0\n"
+    << "POINTS " << pts.size() << "\nDATA binary\n";
+  for (const auto& p : pts) f.write(reinterpret_cast<const char*>(p.data()), 3 * sizeof(float));
+  return static_cast<bool>(f);
+}
 
 }  // namespace zhao_lio

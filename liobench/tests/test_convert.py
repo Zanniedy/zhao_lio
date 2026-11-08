@@ -118,7 +118,7 @@ def test_registry_lists_everything():
     names = [n for n, _ in c["lidar"]]
     for n in ["livox_custom", "pointcloud2", "velodyne", "ouster", "hesai", "robosense", "livox_pointcloud2"]:
         assert n in names
-    assert [n for n, _ in c["gt"]] == ["csv", "kitti", "tum"]
+    assert [n for n, _ in c["gt"]] == ["bag_pose", "csv", "kitti", "tum"]
     with pytest.raises(KeyError):
         LIDAR.create("nope")
 
@@ -234,3 +234,44 @@ def test_imu_cdr_roundtrip():
     m = ts.deserialize_cdr(raw, "sensor_msgs/msg/Imu")
     assert (m.header.stamp.sec, m.header.stamp.nanosec) == (1_700_000_000, 500_000_000)
     assert (m.angular_velocity.z, m.linear_acceleration.x) == (3, 4)
+
+
+def test_drop_orientation_outliers_keeps_consistent_track():
+    yaw = np.linspace(0, 1.0, 40)
+    q = np.stack([np.zeros(40), np.zeros(40), np.sin(yaw / 2), np.cos(yaw / 2)], 1)
+    gt = np.concatenate([np.arange(40)[:, None] * 0.01, np.zeros((40, 3)), q], 1)
+    flipped = gt.copy()
+    flip = rot_to_quat(quat_to_rot(q) @ np.diag([1.0, -1.0, -1.0]))   # 180 deg about x
+    bad = np.arange(1, 40, 3)
+    flipped[bad, 4:8] = flip[bad]
+    from liobench.convert.imu_gt import drop_orientation_outliers
+    kept = drop_orientation_outliers(flipped, 30)
+    assert len(kept) == 40 - len(bad)
+    assert np.allclose(kept[:, 0], np.delete(gt[:, 0], bad))
+    # first sample flipped: the majority track still wins
+    flipped[0, 4:8] = flip[0]
+    kept = drop_orientation_outliers(flipped, 30)
+    assert 0.0 not in kept[:, 0] and len(kept) == 40 - len(bad) - 1
+
+
+def test_bag_pose_gt(tmp_path):
+    from rosbags.rosbag1 import Writer
+    from rosbags.typesys import Stores, get_typestore
+    ts = get_typestore(Stores.ROS1_NOETIC)
+    T = ts.types
+    bag = tmp_path / "gt.bag"
+    with Writer(bag) as w:
+        c = w.add_connection("/mocap/pose", "geometry_msgs/msg/PoseStamped", typestore=ts)
+        for i in range(5):
+            st = 1_700_000_000_000_000_000 + i * 10_000_000
+            sec, ns = divmod(st, 10**9)
+            m = T["geometry_msgs/msg/PoseStamped"](
+                header=T["std_msgs/msg/Header"](seq=i, stamp=T["builtin_interfaces/msg/Time"](sec=sec, nanosec=ns), frame_id="world"),
+                pose=T["geometry_msgs/msg/Pose"](position=T["geometry_msgs/msg/Point"](x=float(i), y=0.0, z=1.0),
+                                                 orientation=T["geometry_msgs/msg/Quaternion"](x=0.0, y=0.0, z=0.0, w=1.0)))
+            w.write(c, st + 5_000_000, ts.serialize_ros1(m, "geometry_msgs/msg/PoseStamped"))
+    from liobench.convert import GT
+    g = GT.create("bag_pose", topic="/mocap/pose").read(bag)
+    assert g.shape == (5, 8)
+    assert g[1, 0] == pytest.approx(1_700_000_000.01)
+    assert list(g[:, 1]) == [0, 1, 2, 3, 4]

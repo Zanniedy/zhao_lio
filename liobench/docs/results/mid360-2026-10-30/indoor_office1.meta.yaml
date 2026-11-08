@@ -1,0 +1,37 @@
+fingerprint: f5c2e1e137f6
+converter_version: 1
+converted: '2026-10-30 12:02:34'
+source:
+  bag: /home/lsy/Downloads/IndoorOffice1_dataset.bag
+  gt:
+    format: bag_pose
+    topic: /vrpn_client_node/unitree_b1/pose
+    orientation_outlier_deg: 30
+  lidar:
+    topic: /mid360/livox/lidar
+    decoder: livox_pointcloud2
+  imu:
+    topic: /mid360/livox/imu
+    acc_unit: g
+sensor:
+  lidar_topic: /liobench/lidar
+  lidar_msg: livox_ros_driver2/msg/CustomMsg
+  lidar_type: livox_custom
+  imu_topic: /liobench/imu
+  acc_norm: 9.81
+  scan_lines: 4
+  scan_rate: 10.001
+stats:
+  scans: 660
+  imu: 13212
+  points: 13190208
+  empty_scans: 0
+  points_per_scan: 19985.2
+  scan_duration_ms: 100.18
+  duration_s: 65.9
+  convert_s: 1.7
+gt:
+  poses: 5571
+  dropped_orientation_outliers: 2093
+  start: 1743002278.192945
+  end: 1743002344.392984

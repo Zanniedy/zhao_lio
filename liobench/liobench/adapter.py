@@ -8,6 +8,7 @@ An algorithm spec (algorithms/<name>.yaml) looks like:
     config:
       mode: ros_params             # ros_params: --params-file; yaml_file: path passed as a ROS param
       base: $LIOBENCH_REFS/Point-LIO/config/avia.yaml
+      base_for: {mid360: ...}      # optional: config used when the dataset's sensor.model matches
       node_key: "/**"              # ros_params only
       path_param: config_path      # yaml_file only
     lidar_types: {livox_custom: 1} # dataset lidar_type -> value of {lidar_type}
@@ -79,7 +80,9 @@ def render_config(run: RunSpec, run_dir: Path) -> tuple[Path, dict]:
         overrides[timing["param"]] = str(run_dir / "internal_timing.csv")
     overrides.update(run.params)
 
-    base = load_yaml(resolve(cfg["base"]))
+    # base_for: {<sensor model>: path} picks the algorithm's own config for that sensor, if it has one
+    model = run.sequence.sensor.get("model")
+    base = load_yaml(resolve((cfg.get("base_for") or {}).get(model, cfg["base"])))
     out = run_dir / "algo_config.yaml"
     if cfg["mode"] == "ros_params":
         node_key = cfg.get("node_key", "/**")

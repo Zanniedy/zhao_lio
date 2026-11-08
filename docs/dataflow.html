@@ -1,0 +1,327 @@
+<title>zhao_lio 数据流</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap">
+<style>
+/* Layout: one reading column for text, full-width scrollable figures; three bands (input / core / output) snake top to bottom */
+:root {
+  --bg: #f4f6f7; --fg: #1a2329; --muted: #5a6670; --line: #c3ccd3;
+  --panel: #e9edf0; --box: #ffffff; --accent: #0d7480; --accent-soft: #dcefF1; --imu: #a85a17;
+  --edge: #46525b;
+  --sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161a; --fg: #e2e8ec; --muted: #94a1ab; --line: #3a464f;
+  --panel: #182025; --box: #1e272d; --accent: #4fc0ca; --accent-soft: #15383d; --imu: #e2a062;
+  --edge: #a9b5bd; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11161a; --fg: #e2e8ec; --muted: #94a1ab; --line: #3a464f;
+  --panel: #182025; --box: #1e272d; --accent: #4fc0ca; --accent-soft: #15383d; --imu: #e2a062;
+  --edge: #a9b5bd; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 32px 56px; }
+main { max-width: 1160px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+.prose { max-width: 66ch; }
+h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 8px; font-weight: 700; text-wrap: balance; }
+h2 { font-size: 1.15rem; margin: 0; font-weight: 700; text-wrap: balance; }
+p { margin: 0; }
+code { font-family: var(--mono); font-size: 0.88em; background: var(--panel); padding: 1px 5px; border-radius: 4px; }
+.lede { color: var(--muted); }
+figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.scroll svg { display: block; width: 100%; min-width: 920px; height: auto; color: var(--edge); }
+figcaption { color: var(--muted); font-size: 0.9rem; max-width: 80ch; }
+svg .band { fill: var(--panel); }
+svg .band-lab { font: 500 11px var(--mono); fill: var(--muted); letter-spacing: 0.06em; }
+svg .box { fill: var(--box); stroke: var(--line); stroke-width: 1.2; }
+svg .box.hl { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.6; }
+svg .box.dash { fill: none; stroke-dasharray: 5 4; stroke: var(--muted); }
+svg .box.imu { stroke: var(--imu); }
+svg .t { font: 500 12.5px var(--mono); fill: var(--fg); }
+svg .tc { font: 500 13px var(--sans); fill: var(--fg); }
+svg .s { font: 400 11px var(--sans); fill: var(--muted); }
+svg .lab { font: 400 11px var(--sans); fill: var(--muted); }
+svg .lab.m { font-family: var(--mono); }
+svg .lab.acc { fill: var(--accent); }
+svg .edge { stroke: currentColor; stroke-width: 1.3; fill: none; }
+svg .edge.dash { stroke-dasharray: 4 3; }
+svg .edge.acc { stroke: var(--accent); }
+svg .ah { fill: currentColor; }
+svg .ah.acc { fill: var(--accent); }
+svg .tick { stroke: var(--imu); stroke-width: 2; }
+svg .dot { fill: var(--accent); }
+svg .imu-t { fill: var(--imu); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 7px 12px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-weight: 500; color: var(--muted); font-size: 0.8rem; letter-spacing: 0.05em; }
+td:first-child { white-space: nowrap; }
+.tablewrap { overflow-x: auto; }
+</style>
+<main>
+<header class="prose">
+  <h1>zhao_lio 数据流</h1>
+  <p class="lede">从传感器话题到输出的里程计和地图，一帧数据要经过的每一步。图按源码 <code>src/zhao_lio_core</code> 和 <code>src/zhao_lio_ros2</code> 画，函数名和代码里一致。</p>
+</header>
+
+<figure>
+<h2>整体：输入 → 核心库 → 输出</h2>
+<div class="scroll">
+<svg viewBox="0 0 1120 772" role="img" aria-label="zhao_lio 整体数据流：IMU 和 LiDAR 话题经消息转换进入 MeasureSync 配对成 Measure，ZhaoLio::process 依次做预处理、降采样、事件合并、逐点 ESKF 更新、帧尾预测和地图插入，结果发布为里程计、TF、路径、点云和地图文件。">
+<defs>
+  <marker id="a1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="a1c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah acc" d="M0,0 L10,5 L0,10 z"/></marker>
+</defs>
+
+<!-- Band 1: inputs, flows right to left -->
+<rect class="band" x="8" y="8" width="1104" height="190" rx="8"/>
+<text class="band-lab" x="1096" y="32" text-anchor="end">zhao_lio_ros2 · 输入</text>
+
+<rect class="box" x="24" y="52" width="230" height="128" rx="6"/>
+<text class="t" x="40" y="76">MeasureSync</text>
+<text class="s" x="40" y="98">按 scan.t_end 给每帧配 IMU</text>
+<text class="s" x="40" y="116">乱序的 IMU 样本丢弃</text>
+<text class="s" x="40" y="134">最多缓存 20 帧点云</text>
+<text class="s" x="40" y="152">最新 IMU 时间 ≥ t_end 才出队</text>
+
+<rect class="box" x="330" y="52" width="190" height="52" rx="6"/>
+<text class="t" x="346" y="74">imu_from_msg</text>
+<text class="s" x="346" y="93">加速度 × acc_scale</text>
+<rect class="box" x="330" y="128" width="190" height="52" rx="6"/>
+<text class="t" x="346" y="150">scan_from_*</text>
+<text class="s" x="346" y="169">PointCloud2 / Livox</text>
+
+<rect class="box imu" x="590" y="52" width="190" height="52" rx="6"/>
+<text class="tc" x="606" y="74">IMU 话题</text>
+<text class="s" x="606" y="93">sensor_msgs/Imu</text>
+<rect class="box" x="590" y="128" width="190" height="52" rx="6"/>
+<text class="tc" x="606" y="150">LiDAR 话题</text>
+<text class="s" x="606" y="169">每个点带时间戳</text>
+
+<rect class="box dash" x="850" y="52" width="246" height="128" rx="6"/>
+<text class="t" x="866" y="76">zhao_lio_replay</text>
+<text class="s" x="866" y="98">离线：直接读 bag</text>
+<text class="s" x="866" y="116">反序列化后走同样的转换</text>
+<text class="s" x="866" y="134">结束时打印各阶段平均耗时</text>
+<text class="s" x="866" y="152">实时版是 zhao_lio_node</text>
+
+<path class="edge" d="M590,78 H522" marker-end="url(#a1)"/>
+<path class="edge" d="M330,78 H256" marker-end="url(#a1)"/>
+<text class="lab m" x="293" y="70" text-anchor="middle">ImuSample</text>
+<path class="edge" d="M590,154 H522" marker-end="url(#a1)"/>
+<path class="edge" d="M330,154 H256" marker-end="url(#a1)"/>
+<text class="lab m" x="293" y="146" text-anchor="middle">ScanFrame</text>
+<path class="edge dash" d="M850,116 H782" marker-end="url(#a1)"/>
+<text class="lab" x="816" y="108" text-anchor="middle">替代订阅</text>
+<!-- Band 2: core library -->
+<rect class="band" x="8" y="206" width="1104" height="322" rx="8"/>
+<text class="band-lab" x="1096" y="230" text-anchor="end">zhao_lio_core · ZhaoLio::process()</text>
+
+<path class="edge" d="M98,180 V328" marker-end="url(#a1)"/>
+<text class="lab m" x="110" y="262">Measure</text>
+<text class="lab" x="110" y="279">一帧点云 + 期间的 IMU</text>
+
+<text class="lab" x="316" y="266" text-anchor="end">状态</text>
+<rect class="box" x="330" y="244" width="190" height="34" rx="17"/>
+<text class="t" x="425" y="266" text-anchor="middle">kWaitImuInit</text>
+<rect class="box" x="590" y="244" width="190" height="34" rx="17"/>
+<text class="t" x="685" y="266" text-anchor="middle">kWaitMapInit</text>
+<rect class="box hl" x="850" y="244" width="190" height="34" rx="17"/>
+<text class="t" x="945" y="266" text-anchor="middle">kProcess</text>
+<path class="edge" d="M520,261 H588" marker-end="url(#a1)"/>
+<text class="lab" x="554" y="253" text-anchor="middle">攒够</text>
+<path class="edge" d="M780,261 H848" marker-end="url(#a1)"/>
+<text class="lab" x="814" y="253" text-anchor="middle">满 N 帧</text>
+<text class="s" x="425" y="298" text-anchor="middle">静止初始化：重力对齐，bg = 陀螺均值</text>
+<text class="s" x="685" y="298" text-anchor="middle">只做 IMU 预测，点直接入图</text>
+<text class="s" x="945" y="298" text-anchor="middle">走下面这条流水线</text>
+
+<rect class="box" x="24" y="330" width="148" height="64" rx="6"/>
+<text class="t" x="40" y="356">preprocess</text>
+<text class="s" x="40" y="377">盲区 · 抽点 · NaN</text>
+<rect class="box" x="202" y="330" width="148" height="64" rx="6"/>
+<text class="t" x="218" y="356">VoxelGridClosest</text>
+<text class="s" x="218" y="377">降采样，再按时间排序</text>
+<rect class="box" x="380" y="330" width="148" height="64" rx="6"/>
+<text class="t" x="396" y="356">merge_events</text>
+<text class="s" x="396" y="377">点和 IMU 按时间合流</text>
+<rect class="box hl" x="558" y="330" width="148" height="64" rx="6"/>
+<text class="t" x="574" y="356">UpdateStrategy</text>
+<text class="s" x="574" y="377">逐点 ESKF 更新（见下图）</text>
+<rect class="box" x="736" y="330" width="148" height="64" rx="6"/>
+<text class="t" x="752" y="356">predict_state</text>
+<text class="s" x="752" y="377">推到 t_end，NaN 则 reset</text>
+<rect class="box" x="914" y="330" width="148" height="64" rx="6"/>
+<text class="t" x="930" y="356">map_-&gt;insert</text>
+<text class="s" x="930" y="377">本帧世界系点入图</text>
+<path class="edge" d="M172,362 H200" marker-end="url(#a1)"/>
+<path class="edge" d="M350,362 H378" marker-end="url(#a1)"/>
+<path class="edge" d="M528,362 H556" marker-end="url(#a1)"/>
+<path class="edge" d="M706,362 H734" marker-end="url(#a1)"/>
+<path class="edge" d="M884,362 H912" marker-end="url(#a1)"/>
+
+<rect class="box" x="360" y="440" width="240" height="72" rx="6"/>
+<text class="t" x="376" y="464">Eskf30</text>
+<text class="s" x="376" y="484">状态 p R R_LI t_LI v ω a g bg ba</text>
+<text class="s" x="376" y="502">协方差 P：30 × 30</text>
+<path class="edge acc" d="M580,396 V438" marker-start="url(#a1c)" marker-end="url(#a1c)"/>
+<text class="lab acc" x="572" y="422" text-anchor="end">读写 x 和 P</text>
+
+<rect class="box" x="640" y="440" width="422" height="72" rx="6"/>
+<text class="t" x="656" y="464">OctVoxMap</text>
+<text class="s" x="656" y="484">八叉体素地图，移植自 Super-LIO</text>
+<text class="s" x="656" y="502">每个体素存代表点；查最近 5 点拟合平面</text>
+<path class="edge acc" d="M680,394 V438" marker-end="url(#a1c)"/>
+<text class="lab acc" x="688" y="422">只读查询</text>
+<path class="edge" d="M988,394 V438" marker-end="url(#a1)"/>
+<text class="lab" x="996" y="422">写入</text>
+<!-- Band 3: outputs -->
+<rect class="band" x="8" y="538" width="1104" height="226" rx="8"/>
+<text class="band-lab" x="24" y="562">zhao_lio_ros2 · 输出</text>
+
+<path class="edge" d="M420,512 V584" marker-end="url(#a1)"/>
+<text class="lab" x="428" y="560">每帧结果</text>
+<rect class="box" x="330" y="586" width="180" height="64" rx="6"/>
+<text class="t" x="346" y="610">ScanResult</text>
+<text class="s" x="346" y="630">位姿、本帧世界系点、各阶段耗时</text>
+
+<path class="edge" d="M510,618 H535 M535,581 V733"/>
+<rect class="box" x="560" y="566" width="220" height="30" rx="5"/>
+<text class="t" x="574" y="586">/zhao_lio/odom</text>
+<rect class="box" x="560" y="604" width="220" height="30" rx="5"/>
+<text class="t" x="574" y="624">TF odom → body</text>
+<rect class="box" x="560" y="642" width="220" height="30" rx="5"/>
+<text class="t" x="574" y="662">/zhao_lio/path</text>
+<rect class="box" x="560" y="680" width="220" height="30" rx="5"/>
+<text class="t" x="574" y="700">/zhao_lio/cloud_world</text>
+<rect class="box" x="560" y="718" width="220" height="30" rx="5"/>
+<text class="tc" x="574" y="738">轨迹 .tum · 耗时 .csv</text>
+<path class="edge" d="M535,581 H558" marker-end="url(#a1)"/>
+<path class="edge" d="M535,619 H558" marker-end="url(#a1)"/>
+<path class="edge" d="M535,657 H558" marker-end="url(#a1)"/>
+<path class="edge" d="M535,695 H558" marker-end="url(#a1)"/>
+<path class="edge" d="M535,733 H558" marker-end="url(#a1)"/>
+
+<path class="edge" d="M895,512 V584" marker-end="url(#a1)"/>
+<path class="edge" d="M1043,512 V584" marker-end="url(#a1)"/>
+<text class="lab m" x="887" y="552" text-anchor="end">get_points</text>
+<rect class="box" x="820" y="586" width="150" height="52" rx="6"/>
+<text class="t" x="836" y="608">/zhao_lio/map</text>
+<text class="s" x="836" y="627">定时发布</text>
+<rect class="box" x="990" y="586" width="106" height="52" rx="6"/>
+<text class="t" x="1004" y="608">map_*.pcd</text>
+<text class="s" x="1004" y="627">save_map / 退出</text>
+</svg>
+</div>
+<figcaption>一帧数据从右上角进入，沿 S 形走完三层。核心库只认识 <code>Measure</code> 和 <code>ScanResult</code>，不依赖 ROS；实时节点和离线回放只是两种喂数据的方式。地图在一帧内对更新策略只读，策略处理完后才统一写入。</figcaption>
+</figure>
+<figure>
+<h2>UpdateStrategy 内部：一帧的事件怎么处理</h2>
+<div class="scroll">
+<svg viewBox="0 0 1120 512" role="img" aria-label="UpdateStrategy 按时间顺序处理事件。IMU 事件执行 imu_step：状态预测、协方差预测、IMU 观测更新。点事件在 pointwise 策略下串行做预测、平面匹配、残差门限和 rank-1 更新；在 pointwise_prematch 策略下，平面匹配提前到 TBB 并行阶段完成，串行循环只在残差过大时重新匹配。">
+<defs>
+  <marker id="a2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker>
+  <marker id="a2c" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah acc" d="M0,0 L10,5 L0,10 z"/></marker>
+  <pattern id="pts" x="24" y="0" width="9" height="12" patternUnits="userSpaceOnUse"><circle class="dot" cx="4.5" cy="6" r="1.7"/></pattern>
+</defs>
+
+<text class="lab" x="24" y="28">一帧内的事件流（merge_events 的输出，时间递增）</text>
+<text class="lab imu-t" x="1000" y="28" text-anchor="end">| IMU 样本</text>
+<text class="lab acc" x="1096" y="28" text-anchor="end">● LiDAR 点</text>
+<path class="edge" d="M24,70 H1096"/>
+<rect x="24" y="64" width="1072" height="12" fill="url(#pts)"/>
+<path class="tick" d="M70,52 V88 M177,52 V88 M284,52 V88 M391,52 V88 M498,52 V88 M605,52 V88 M712,52 V88 M819,52 V88 M926,52 V88 M1033,52 V88"/>
+<text class="lab m" x="24" y="104">t_begin</text>
+<text class="lab m" x="1096" y="104" text-anchor="end">t_end</text>
+
+<path class="edge" d="M174,90 V128" marker-end="url(#a2)"/>
+<text class="lab imu-t" x="182" y="116">IMU 事件</text>
+<path class="edge" d="M728,90 V128" marker-end="url(#a2)"/>
+<text class="lab acc" x="736" y="116">点事件（按 update_strategy 二选一）</text>
+
+<!-- IMU handler -->
+<rect class="box imu" x="24" y="130" width="300" height="176" rx="6"/>
+<text class="t" x="40" y="154">imu_step()</text>
+<rect class="box" x="40" y="166" width="268" height="36" rx="5"/>
+<text class="t" x="52" y="189">predict_state</text><text class="s" x="296" y="189" text-anchor="end">p、R、v 前推</text>
+<rect class="box" x="40" y="212" width="268" height="36" rx="5"/>
+<text class="t" x="52" y="235">predict_cov</text><text class="s" x="296" y="235" text-anchor="end">P = F P Fᵀ + Q dt²</text>
+<rect class="box" x="40" y="258" width="268" height="36" rx="5"/>
+<text class="t" x="52" y="281">update_imu</text><text class="s" x="296" y="281" text-anchor="end">6 维观测，饱和轴跳过</text>
+<text class="s" x="24" y="334">两种策略的 IMU 处理完全相同（updater/common.cpp）。</text>
+<text class="s" x="24" y="354">ω 和 a 是状态量，IMU 读数当观测，</text>
+<text class="s" x="24" y="372">这是 Point-LIO 的 output 模型。</text>
+<text class="s" x="24" y="400">点比滤波器时间还早时只入图，不参与更新。</text>
+<text class="s" x="24" y="428">每个点处理完都按当前位姿算一次世界坐标，</text>
+<text class="s" x="24" y="446">存进 points_world，帧末统一写入地图。</text>
+
+<!-- Lane A: pointwise -->
+<rect class="box" x="360" y="130" width="736" height="110" rx="6"/>
+<text class="t" x="376" y="152">pointwise</text>
+<text class="s" x="460" y="152">每个点全部串行</text>
+<rect class="box" x="376" y="168" width="150" height="54" rx="5"/>
+<text class="t" x="390" y="191">predict_state</text><text class="s" x="390" y="210">前推到 t_i</text>
+<rect class="box hl" x="546" y="168" width="170" height="54" rx="5"/>
+<text class="t" x="560" y="191">match_plane</text><text class="s" x="560" y="210">查 5 近邻，拟合平面</text>
+<rect class="box" x="736" y="168" width="150" height="54" rx="5"/>
+<text class="t" x="750" y="191">pass_gate</text><text class="s" x="750" y="210">残差 r 与点距比较</text>
+<rect class="box" x="906" y="168" width="174" height="54" rx="5"/>
+<text class="t" x="920" y="191">update_point</text><text class="s" x="920" y="210">点到平面 rank-1 更新</text>
+<path class="edge" d="M526,195 H544" marker-end="url(#a2)"/>
+<path class="edge" d="M716,195 H734" marker-end="url(#a2)"/>
+<path class="edge" d="M886,195 H904" marker-end="url(#a2)"/>
+
+<!-- Lane B: pointwise_prematch -->
+<rect class="box" x="360" y="256" width="736" height="244" rx="6"/>
+<text class="t" x="376" y="278">pointwise_prematch</text>
+<text class="s" x="520" y="278">默认。把平面匹配挪出串行循环</text>
+<rect class="box" x="376" y="294" width="230" height="54" rx="5"/>
+<text class="tc" x="390" y="317">① 在 ESKF 副本上只用 IMU 预测</text><text class="s" x="390" y="336">得到每个点的 pred_world</text>
+<rect class="box hl" x="626" y="294" width="260" height="54" rx="5"/>
+<text class="tc" x="640" y="317">② TBB 并行 match_plane</text><text class="s" x="640" y="336">整帧一次算完，存进 planes_</text>
+<path class="edge" d="M606,321 H624" marker-end="url(#a2)"/>
+<text class="s" x="902" y="317">真实滤波器不动，</text>
+<text class="s" x="902" y="336">地图只读，所以能并行</text>
+
+<text class="lab" x="376" y="380">③ 串行循环，逐点：</text>
+<rect class="box" x="376" y="390" width="150" height="54" rx="5"/>
+<text class="t" x="390" y="413">predict_state</text><text class="s" x="390" y="432">前推到 t_i</text>
+<rect class="box" x="546" y="390" width="170" height="54" rx="5"/>
+<text class="t" x="560" y="413">planes_[i]</text><text class="s" x="560" y="432">用当前位姿算残差 r</text>
+<rect class="box" x="736" y="390" width="150" height="54" rx="5"/>
+<text class="t" x="750" y="413">pass_gate</text><text class="s" x="750" y="432">同上</text>
+<rect class="box" x="906" y="390" width="174" height="54" rx="5"/>
+<text class="t" x="920" y="413">update_point</text><text class="s" x="920" y="432">同上</text>
+<path class="edge" d="M526,417 H544" marker-end="url(#a2)"/>
+<path class="edge" d="M716,417 H734" marker-end="url(#a2)"/>
+<path class="edge" d="M886,417 H904" marker-end="url(#a2)"/>
+<path class="edge acc" d="M756,348 V368 H631 V388" marker-end="url(#a2c)"/>
+<text class="lab m acc" x="764" y="364">planes_</text>
+<path class="edge dash acc" d="M631,444 V466 H811 V446" marker-end="url(#a2c)"/>
+<text class="lab acc" x="640" y="486">|r| &gt; rematch_thr 时，按当前位姿重新 match_plane</text>
+</svg>
+</div>
+<figcaption>两种策略的区别只在平面匹配放在哪里（高亮的格子）。pointwise 每个点都在串行循环里搜一次地图；prematch 先用纯 IMU 预测的位姿并行把整帧的平面算完，串行循环里只对残差超过 <code>rematch_thr</code> 的点补搜。</figcaption>
+</figure>
+<section class="prose" style="max-width: 900px; display: flex; flex-direction: column; gap: 10px;">
+<h2>每一步在哪个文件</h2>
+<div class="tablewrap">
+<table>
+<thead><tr><th>步骤</th><th>代码</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td>消息转换</td><td><code>zhao_lio_ros2/msg_conversions.h</code></td><td>ROS 消息转成 <code>ImuSample</code> / <code>ScanFrame</code></td></tr>
+<tr><td>时间同步</td><td><code>core/src/sync.cpp</code></td><td><code>MeasureSync</code>，配出 <code>Measure</code></td></tr>
+<tr><td>状态机和主流程</td><td><code>core/src/zhao_lio.cpp</code></td><td><code>ZhaoLio::process()</code>、<code>init_from_imu()</code></td></tr>
+<tr><td>预处理</td><td><code>core/src/preprocess.cpp</code></td><td><code>blind_min</code> / <code>blind_max</code>、<code>point_filter_num</code></td></tr>
+<tr><td>降采样</td><td><code>core/include/zhao_lio/voxel_downsample.h</code></td><td>串行和 TBB 并行两个版本</td></tr>
+<tr><td>事件合并</td><td><code>core/src/events.cpp</code></td><td>同一时间戳 IMU 排在点前面</td></tr>
+<tr><td>更新策略</td><td><code>core/src/updater/*.cpp</code></td><td><code>pointwise</code>、<code>pointwise_prematch</code>、共用的 <code>imu_step</code></td></tr>
+<tr><td>滤波器</td><td><code>core/src/eskf30.cpp</code></td><td><code>predict_state</code>、<code>predict_cov</code>、<code>update_imu</code>、<code>update_point</code></td></tr>
+<tr><td>平面拟合</td><td><code>core/src/plane.cpp</code></td><td>5 近邻最小二乘，任一点距平面超过 <code>plane_thr</code> 判无效</td></tr>
+<tr><td>地图</td><td><code>core/include/zhao_lio/oct_vox_map.hpp</code></td><td><code>get_top_k</code>、<code>insert</code>、<code>get_points</code></td></tr>
+<tr><td>输出</td><td><code>zhao_lio_ros2/src/zhao_lio_node.cpp</code>、<code>replay.cpp</code></td><td>发布话题和 TF，写 .tum / .csv / .pcd</td></tr>
+</tbody>
+</table>
+</div>
+</section>
+</main>

@@ -48,7 +48,7 @@ def list_converters() -> dict[str, list[tuple[str, str]]]:
     return {"lidar": LIDAR.describe(), "imu": IMU.describe(), "gt": GT.describe()}
 
 
-def _options(cfg: dict, drop=("topic", "decoder", "format", "imu_T_gt", "time_offset")) -> dict:
+def _options(cfg: dict, drop=("topic", "decoder", "format", "imu_T_gt", "time_offset", "orientation_outlier_deg")) -> dict:
     return {k: v for k, v in (cfg or {}).items() if k not in drop}
 
 
@@ -91,6 +91,8 @@ def convert_sequence(seq_name: str, raw: dict, source: dict, out_dir: Path, forc
 
     src_bag = expand_path(raw["bag"])
     src_gt = expand_path(raw.get("gt"))
+    if src_gt is None and (source.get("gt") or {}).get("format") == "bag_pose":
+        src_gt = src_bag  # ground truth is a topic in the same bag
     fp = fingerprint({"bag": str(src_bag), "gt": str(src_gt), "source": source})
     meta_path = out_dir / "meta.yaml"
     if meta_path.exists() and not force:
@@ -108,7 +110,10 @@ def convert_sequence(seq_name: str, raw: dict, source: dict, out_dir: Path, forc
         raise FileNotFoundError(f"{seq_name}：找不到原始数据包：{src_bag}")
 
     lcfg, icfg = source["lidar"], source["imu"]
-    ldec = LIDAR.create(lcfg["decoder"], **_options(lcfg))
+    lidar_options = _options(lcfg)
+    if lcfg["decoder"] != "livox_custom":
+        lidar_options.pop("time_base", None)
+    ldec = LIDAR.create(lcfg["decoder"], **lidar_options)
     idec = IMU.create(icfg.get("decoder", "imu"), **_options(icfg))
     l_off = int(round(float(lcfg.get("time_offset", 0.0)) * 1e9))  # added to LiDAR times
     i_off = int(round(float(icfg.get("time_offset", 0.0)) * 1e9))
@@ -182,11 +187,20 @@ def convert_sequence(seq_name: str, raw: dict, source: dict, out_dir: Path, forc
 
 
 def convert_gt(src: Path, cfg: dict, dst: Path) -> dict:
-    reader = GT.create(cfg.get("format", "tum"), **_options(cfg))
-    gt = imu_gt.gt_to_imu(reader.read(src), cfg.get("imu_T_gt"))
+    fmt = cfg.get("format", "tum")
+    opts = _options(cfg)
+    if fmt == "bag_pose":
+        opts["topic"] = cfg["topic"]
+    gt = GT.create(fmt, **opts).read(src)
+    gt = gt[np.argsort(gt[:, 0])]
+    n_raw = len(gt)
+    if cfg.get("orientation_outlier_deg"):
+        gt = imu_gt.drop_orientation_outliers(gt, float(cfg["orientation_outlier_deg"]))
+    gt = imu_gt.gt_to_imu(gt, cfg.get("imu_T_gt"))
     gt[:, 0] += float(cfg.get("time_offset", 0.0))
     gt = gt[np.argsort(gt[:, 0])]
     with open(dst, "w") as f:
         for r in gt:
             f.write(f"{r[0]:.9f} " + " ".join(f"{v:.9f}" for v in r[1:8]) + "\n")
-    return {"poses": len(gt), "start": float(gt[0, 0]), "end": float(gt[-1, 0])}
+    return {"poses": len(gt), "dropped_orientation_outliers": n_raw - len(gt),
+            "start": float(gt[0, 0]), "end": float(gt[-1, 0])}

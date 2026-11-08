@@ -1,0 +1,32 @@
+# 自己录的 Mid360 数据（机器人上，nav/cs 那套驱动）
+#   点云 /livox/lidar：PointCloud2，每点 float64 `timestamp`（秒，绝对时间），没有线号；40 Hz，每帧约 5000 点
+#   IMU  /livox/imu：Mid-360 内置 IMU，单位 g，约 195 Hz
+# 没有真值。包里的 /Odometry 是录制时机器人上的 LIO 输出，不当真值用。
+
+output: ~/datasets/liobench/own
+
+source:
+  lidar:
+    topic: /livox/lidar
+    decoder: pointcloud2
+    time_field: timestamp
+    time_unit: s
+    time_ref: absolute
+    ring_field: null          # 这个驱动不输出线号
+    intensity_field: intensity
+  imu:
+    topic: /livox/imu
+    acc_unit: g
+
+sensor:
+  model: mid360
+  satu_acc: 29.4
+  satu_gyro: 35.0
+  blind: 0.5
+  # Mid-360 出厂外参（雷达在 IMU 坐标系下的位置）
+  extrinsic_t: [-0.011, -0.02329, 0.04412]
+  extrinsic_r: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+sequences:
+  offline_map_20261014:
+    bag: ~/maps/offline_map_20261014_192450

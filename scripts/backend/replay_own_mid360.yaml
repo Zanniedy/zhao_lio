@@ -1,0 +1,53 @@
+# Mid360 + liobench 转换后的数据包（liobench convert 输出：/liobench/lidar、/liobench/imu，IMU 已换算为 m/s²）
+# 地图分辨率 0.1 m，用于在 RViz 里看细节；比 mid360.yaml（0.5 m）慢
+/**:
+  ros__parameters:
+    lidar_topic: /liobench/lidar
+    imu_topic: /liobench/imu
+    lidar_type: livox_custom          # livox_custom | pointcloud2
+    odom_frame: odom
+    body_frame: body
+    traj_path: ""                     # TUM output, empty = off
+    timing_csv: ""                    # per-frame timing CSV, empty = off
+    map_publish_period: 0.0
+    map_save_dir: ''
+    map_autosave_period: 30.0         # s，定时覆盖保存；退出时和调用 /zhao_lio/save_map 时也会保存
+
+    update_strategy: pointwise_prematch   # pointwise | pointwise_prematch
+    num_threads: 0
+    publish_pointwise_odom: false
+
+    blind_min: 0.5
+    blind_max: 100.0
+    point_filter_num: 1
+    downsample_size: 0.3
+    downsample_parallel: false
+    map_resolution: 0.3
+    map_capacity: 1000000
+    init_map_frames: 3
+
+    plane_thr: 0.1
+    match_s: 81.0
+    rematch_thr: 0.1
+
+    laser_point_cov: 0.01
+    imu_meas_omg_cov: 0.01
+    imu_meas_acc_cov: 0.01
+    vel_cov: 20.0
+    omg_cov: 1000.0
+    acc_cov: 500.0
+    bg_cov: 0.0001
+    ba_cov: 0.0001
+
+    gravity_norm: 9.81
+    acc_norm: 9.81
+    check_satu: true
+    satu_gyro: 35.0
+    satu_acc: 29.4
+    imu_init_num: 100
+
+    extrinsic_est_en: false
+    extrinsic_T: [-0.011, -0.02329, 0.04412]
+    extrinsic_R: [1.0, 0.0, 0.0,
+                  0.0, 1.0, 0.0,
+                  0.0, 0.0, 1.0]

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdlib>
 #include <string>
 #include <vector>
 
@@ -12,8 +13,17 @@ namespace zhao_lio_ros2 {
 struct NodeConfig {
   zhao_lio::Params params;
   std::string lidar_topic, imu_topic, lidar_type, odom_frame, body_frame, traj_path, timing_csv;
+  double map_publish_period = 1.0;  // s; <= 0 disables /zhao_lio/map
+  std::string map_save_dir;         // PCD maps go here; empty disables saving
+  double map_autosave_period = 30.0;  // s; <= 0 saves only on exit / service call
   double acc_scale = 1.0;  // raw IMU acc -> m/s^2
 };
+
+inline std::string expand_home(const std::string& path) {
+  if (path.empty() || path[0] != '~') return path;
+  const char* home = std::getenv("HOME");
+  return (home ? std::string(home) : std::string()) + path.substr(1);
+}
 
 inline NodeConfig load_config(rclcpp::Node& n) {
   NodeConfig c;
@@ -25,6 +35,9 @@ inline NodeConfig load_config(rclcpp::Node& n) {
   c.body_frame = n.declare_parameter<std::string>("body_frame", "body");
   c.traj_path = n.declare_parameter<std::string>("traj_path", "");
   c.timing_csv = n.declare_parameter<std::string>("timing_csv", "");
+  c.map_publish_period = n.declare_parameter<double>("map_publish_period", c.map_publish_period);
+  c.map_save_dir = expand_home(n.declare_parameter<std::string>("map_save_dir", "~/zhao_lio_maps"));
+  c.map_autosave_period = n.declare_parameter<double>("map_autosave_period", c.map_autosave_period);
 
   p.strategy = zhao_lio::parse_strategy(n.declare_parameter<std::string>("update_strategy", "pointwise_prematch"));
   p.num_threads = static_cast<int>(n.declare_parameter<int64_t>("num_threads", p.num_threads));

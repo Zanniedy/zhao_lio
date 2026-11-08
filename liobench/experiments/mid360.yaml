@@ -1,0 +1,24 @@
+# Mid360 主测试：所有算法 × 所有已转换的 Mid360 序列（TIERS 室内，动捕真值）
+# 各算法使用自带的 Mid360 配置（algorithms/*.yaml 里的 base_for.mid360）
+name: mid360
+algorithms:
+  - zhao_lio                              # 默认是 pointwise_prematch
+  - name: zhao_lio
+    params: {update_strategy: [pointwise]}
+  - point_lio
+  - batch_lio
+  - small_point_lio
+  - super_lio
+  - genz_lio
+sequences: [tiers/*]
+repeats: 3
+rate: 1.0
+startup_timeout: 30
+warmup: 2
+drain_timeout: 15
+rpe: {delta: 1, unit: m}                  # 室内轨迹只有 35 m 左右，RPE 窗口取 1 m
+divergence:
+  max_speed: 10           # m/s，四足机器人室内
+  max_jump: 2             # m
+  min_coverage: 0.9
+  max_ate: 2              # m

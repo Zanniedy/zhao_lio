@@ -1,0 +1,44 @@
+# 后端参数（叠加在前端配置之后使用：--params-file mid360.yaml --params-file backend.yaml）
+# backend.mode 为空时不启用后端。
+/**:
+  ros__parameters:
+    backend.mode: mapping             # "" | mapping | localization
+    backend.map_path: ""              # localization：地图包目录（mapping 保存的）或单个 PCD（没有重定位描述子）
+    backend.save_dir: ~/zhao_lio_maps/package   # mapping：退出时保存地图包；/zhao_lio/backend/save_map 也写到这里
+    backend.traj_path: ""             # map 系实时轨迹（TUM），只记录可信帧
+    backend.map_frame: map
+    # backend.initial_pose: [0.0, 0.0, 0.0, 0.0]  # [x, y, z, yaw_deg]：odom 原点在 map 中的位置；不设 = 全局重定位
+
+    # 关键帧
+    backend.kf_dist: 1.0
+    backend.kf_angle_deg: 10.0
+    backend.kf_accum_frames: 10       # 合并最近几帧点云作为关键帧点云（40 Hz 的 Mid-360 可适当加大）
+    backend.kf_voxel: 0.25
+
+    # 里程计因子噪声：sigma = 基础值 + 每米增量
+    backend.odom_sigma_t: 0.02
+    backend.odom_sigma_t_per_m: 0.02
+    backend.odom_sigma_r: 0.002
+    backend.odom_sigma_r_per_m: 0.002
+    backend.gravity_sigma: 0.003      # 建图模式下关键帧 roll/pitch 跟随前端重力估计
+    backend.max_speed: 15.0           # m/s，超过即认为前端发散，请求重置
+
+    # 观测验收
+    backend.nis_prob: 0.99
+    backend.min_inlier_ratio: 0.3
+    backend.max_rmse: 0.12
+    backend.reg.sigma_min: 0.1        # 配准观测每个方向标准差的下限（m）
+    backend.reg.max_sigma: 0.3        # 标准差大于此值的方向视为不可观，不加约束
+
+    # 回环（mapping）
+    backend.loop_enabled: true
+    backend.loop_min_time_gap: 30.0
+    backend.loop_radius: 6.0
+    backend.loop_sc_thr: 0.3
+    backend.loop_nis_prob: 0.9999
+
+    # 定位与状态机（localization）
+    backend.window: 100
+    backend.degraded_to_suspect: 3
+    backend.suspect_to_lost: 5
+    backend.reloc_min_inlier_ratio: 0.35

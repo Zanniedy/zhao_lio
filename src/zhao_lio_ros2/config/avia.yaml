@@ -7,6 +7,9 @@
     body_frame: body
     traj_path: ""                     # TUM output, empty = off
     timing_csv: ""                    # per-frame timing CSV, empty = off
+    map_publish_period: 1.0           # s，发布 /zhao_lio/map 给 RViz；0 关闭
+    map_save_dir: ~/zhao_lio_maps      # PCD 地图目录；每次运行一个文件 map_<启动时间>.pcd；空字符串关闭
+    map_autosave_period: 30.0         # s，定时覆盖保存；退出时和调用 /zhao_lio/save_map 时也会保存
 
     update_strategy: pointwise_prematch   # pointwise | pointwise_prematch
     num_threads: 0

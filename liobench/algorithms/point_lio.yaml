@@ -6,6 +6,8 @@ extra_setup: [$LIOBENCH_LIVOX/setup.bash]   # livox_ros_driver2
 config:
   mode: ros_params
   base: $LIOBENCH_REFS/Point-LIO/config/avia.yaml
+  base_for:
+    mid360: $LIOBENCH_REFS/Point-LIO/config/mid360.yaml     # 算法自带的 Mid360 配置
   node_key: "/**"
 lidar_types: {livox_custom: 1}
 sensor:

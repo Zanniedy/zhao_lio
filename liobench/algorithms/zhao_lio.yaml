@@ -6,6 +6,8 @@ extra_setup: [$LIOBENCH_LIVOX/setup.bash]
 config:
   mode: ros_params
   base: ../src/zhao_lio_ros2/config/tracked.yaml
+  base_for:
+    mid360: ../src/zhao_lio_ros2/config/mid360.yaml     # 算法自带的 Mid360 配置
   node_key: "/**"
 lidar_types: {livox_custom: livox_custom}
 sensor:
@@ -20,5 +22,7 @@ sensor:
   extrinsic_R: "{extrinsic_r}"
 fixed:
   extrinsic_est_en: false
+  map_publish_period: 0.0     # 测试时不发布地图、不写 PCD，避免影响计时
+  map_save_dir: ""
 odom_topic: /zhao_lio/odom
 timing: {param: timing_csv, column: total_ms}   # internal per-frame timing, ms

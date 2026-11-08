@@ -2,6 +2,8 @@
 
 更新日期：2026-10-29
 
+> 2026-11-01 新增了位姿图后端 `src/zhao_lio_backend/`（回环、先验图定位、重定位），交接见 [`HANDOFF-backend.md`](HANDOFF-backend.md)。
+
 ## 1. 这是什么
 
 zhao_lio 是一个用来学习和做实验的 LiDAR-惯性里程计，组合了两套已有实现的做法：

@@ -7,6 +7,8 @@ extra_setup: [$LIOBENCH_LIVOX/setup.bash]
 config:
   mode: yaml_file
   base: $LIOBENCH_REFS/genz-lio/ros/config/experiments/narrowwide/mid70_tracked_01.yaml
+  base_for:
+    mid360: $LIOBENCH_REFS/genz-lio/ros/config/default/mid360.yaml     # 算法自带的 Mid360 配置
   path_param: config_path
 lidar_types: {livox_custom: livox}
 sensor:

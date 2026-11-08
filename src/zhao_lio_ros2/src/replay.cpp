@@ -1,4 +1,6 @@
 #include <cstdio>
+#include <fstream>
+#include <iomanip>
 
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/serialization.hpp>
@@ -7,7 +9,9 @@
 #include "zhao_lio/zhao_lio.h"
 #include "zhao_lio/io.h"
 #include "zhao_lio/sync.h"
+#include "zhao_lio_ros2/backend_config.h"
 #include "zhao_lio_ros2/config.h"
+#include "zhao_lio_ros2/map_saver.h"
 #include "zhao_lio_ros2/msg_conversions.h"
 
 // Reads a bag directly and feeds zhao_lio in timestamp order, without ROS transport, so per-frame
@@ -17,6 +21,13 @@ int main(int argc, char** argv) {
   auto node = std::make_shared<rclcpp::Node>("zhao_lio");
   const zhao_lio_ros2::NodeConfig cfg = zhao_lio_ros2::load_config(*node);
   const std::string bag = node->declare_parameter<std::string>("bag", "");
+  const double start_offset = node->declare_parameter<double>("start_offset", 0.0);  // s skipped at the bag start
+  const zhao_lio_ros2::BackendNodeConfig bcfg = zhao_lio_ros2::load_backend_config(*node);
+  // Test hook: from test_perturb_time on, the odometry fed to the back end is offset by
+  // test_perturb = [dx, dy, yaw_deg] (simulates a front-end jump the back end must detect).
+  const double perturb_time = node->declare_parameter<double>("test_perturb_time", -1.0);
+  const auto perturb = node->declare_parameter<std::vector<double>>("test_perturb", {0.0, 0.0, 0.0});
+  const double perturb_ramp = node->declare_parameter<double>("test_perturb_ramp", 0.0);  // s; 0 = step
   if (bag.empty()) { std::fprintf(stderr, "set -p bag:=<path>\n"); return 1; }
 
   rosbag2_cpp::Reader reader;
@@ -35,6 +46,25 @@ int main(int argc, char** argv) {
 #endif
 
   zhao_lio::ZhaoLio lio(cfg.params);
+  std::unique_ptr<zhao_lio_backend::Backend> backend;
+  std::ofstream btraj;
+  bool reset_requested = false;
+  if (bcfg.enabled) {
+    backend = std::make_unique<zhao_lio_backend::Backend>(bcfg.params);
+    backend->set_reset_callback([&] { reset_requested = true; });
+    if (!bcfg.map_path.empty()) {
+      std::string err;
+      if (!backend->load_map(bcfg.map_path, &err)) { std::fprintf(stderr, "%s\n", err.c_str()); return 1; }
+    }
+    if (!bcfg.traj_path.empty()) { btraj.open(bcfg.traj_path); btraj << std::fixed << std::setprecision(9); }
+  }
+  auto perturb_at = [&](double t) {
+    const double a = perturb_ramp > 0 ? std::min(1.0, (t - perturb_time) / perturb_ramp) : 1.0;
+    return zhao_lio_backend::pose_from(zhao_lio_backend::rot_z(a * perturb.at(2) * M_PI / 180.0),
+                                       Eigen::Vector3d(a * perturb.at(0), a * perturb.at(1), 0.0));
+  };
+  double bag_start = -1.0;
+  long trusted_frames = 0;
   zhao_lio::MeasureSync sync;
   zhao_lio::TumWriter tum;
   zhao_lio::TimingCsv csv;
@@ -47,6 +77,9 @@ int main(int argc, char** argv) {
   zhao_lio::ScanResult r;
   while (reader.has_next()) {
     auto msg = reader.read_next();
+    const double stamp = msg->time_stamp * 1e-9;
+    if (bag_start < 0) bag_start = stamp;
+    if (stamp - bag_start < start_offset) continue;
     rclcpp::SerializedMessage ser(*msg->serialized_data);
     if (msg->topic_name == cfg.imu_topic) {
       sensor_msgs::msg::Imu imu;
@@ -72,6 +105,19 @@ int main(int argc, char** argv) {
     while (sync.pop(m)) {
       if (!lio.process(m, r)) continue;
       tum.write(r.time, r.state);
+      if (backend) {
+        zhao_lio_backend::Pose T = zhao_lio_backend::pose_from(r.state.rot, r.state.pos);
+        if (perturb_time >= 0 && r.time - bag_start >= perturb_time) {
+          const zhao_lio_backend::Pose perturb_T = perturb_at(r.time - bag_start);
+          T = perturb_T * T;
+          for (auto& p : r.points_world) p = (perturb_T * p.cast<double>()).cast<float>();
+        }
+        const zhao_lio_backend::BackendOutput bo = backend->push(r.time, T, r.points_world, lio.session(),
+                                                                    -(T.linear() * r.state.rot.transpose() * r.state.grav).normalized());
+        if (bo.trusted) ++trusted_frames;
+        if (btraj.is_open() && bo.trusted) zhao_lio_ros2::write_tum(btraj, r.time, bo.T_map_body);
+        if (reset_requested) { lio.reset(); reset_requested = false; }
+      }
       csv.write(r);
       ++frames;
       used += r.stats.points_used;
@@ -90,6 +136,31 @@ int main(int argc, char** argv) {
   std::printf("mean ms: pre %.3f  ds %.3f  prematch %.3f  update %.3f  map %.3f  total %.3f\n",
               sum.preprocess_ms / n, sum.downsample_ms / n, sum.prematch_ms / n, sum.update_ms / n,
               sum.map_ms / n, sum.total_ms / n);
+  if (backend) {
+    const auto& st = backend->stats();
+    std::printf("backend: state %s, trusted frames %ld/%ld, keyframes %d, loops %d/%d (NIS rejected %d), "
+                "map factors %d/%d (NIS rejected %d, poor match %d), relocalizations %d, front-end resets %d, "
+                "mean %.2f ms, max %.1f ms\n",
+                zhao_lio_backend::to_string(backend->state()), trusted_frames, frames, st.keyframes, st.loops_accepted,
+                st.loops_tried, st.loops_rejected_nis, st.map_accepted, st.map_tried, st.map_rejected_nis,
+                st.map_rejected_quality, st.relocalizations, st.frontend_resets, st.total_ms / frames, st.max_ms);
+    if (!bcfg.opt_traj_path.empty()) {
+      std::ofstream f(bcfg.opt_traj_path);
+      f << std::fixed << std::setprecision(9);
+      for (const auto& tp : backend->optimized_trajectory()) zhao_lio_ros2::write_tum(f, tp.time, tp.T);
+    }
+    if (!bcfg.save_dir.empty() && bcfg.params.mode == zhao_lio_backend::Mode::kMapping) {
+      std::string err;
+      if (backend->save_map(bcfg.save_dir, &err)) std::printf("map package -> %s\n", bcfg.save_dir.c_str());
+      else std::fprintf(stderr, "map package not saved: %s\n", err.c_str());
+    }
+  }
+  zhao_lio_ros2::MapSaver saver(cfg.map_save_dir);
+  if (saver.enabled()) {
+    const long pts = saver.save(lio);
+    if (pts >= 0) std::printf("map: %ld points -> %s\n", pts, saver.path().c_str());
+    else std::fprintf(stderr, "map not saved: %s\n", saver.error().c_str());
+  }
   rclcpp::shutdown();
   return 0;
 }

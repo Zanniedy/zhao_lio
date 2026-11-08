@@ -227,3 +227,15 @@ def test_report_and_compare(tmp_path):
     fake_run(b, "x", "ds/s1", 0, ate=0.5)
     out = R.compare(a, b)
     assert "-0.500" in out and "(-50%)" in out
+
+
+def test_base_for_sensor_model(tmp_path):
+    run = make_run("point_lio")
+    run.sequence.sensor["model"] = "mid360"
+    path, _ = render_config(run, tmp_path)
+    p = yaml.safe_load(path.read_text())["/**"]["ros__parameters"]
+    assert p["mapping.lidar_time_inte"] == 0.025          # value only in Point-LIO's mid360.yaml
+    run.sequence.sensor["model"] = "other"
+    path, _ = render_config(run, tmp_path)
+    p = yaml.safe_load(path.read_text())["/**"]["ros__parameters"]
+    assert p["mapping.lidar_time_inte"] == 0.1

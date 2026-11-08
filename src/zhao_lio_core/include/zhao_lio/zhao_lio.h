@@ -41,10 +41,13 @@ class ZhaoLio {
   Status status() const { return status_; }
   const OctVoxMap& map() const { return *map_; }
   const Eskf30& filter() const { return kf_; }
+  // Drops the map and the filter state; odometry restarts from IMU initialization.
+  void reset();
+  // Incremented by every reset (requested or after divergence); a new value means a new odom frame.
+  int session() const { return session_; }
 
  private:
   void init_from_imu();
-  void reset();
   void filter_and_downsample(const ScanFrame& scan, FrameTiming& timing);
 
   Params p_;
@@ -58,6 +61,7 @@ class ZhaoLio {
   std::vector<LidarPoint> filtered_, down_;
   StrategyOutput strat_out_;
   int map_frames_ = 0;
+  int session_ = 0;
 };
 
 }  // namespace zhao_lio

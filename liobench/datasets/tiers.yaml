@@ -1,0 +1,37 @@
+# TIERS Multi-Modal LiDAR Dataset（图尔库大学），https://github.com/TIERS/multi_modal_lidar_dataset
+# 宇树 B1 四足机器人，同时装了 Avia、Mid-360、Ouster；这里只用 Mid-360：
+#   点云 /mid360/livox/lidar：PointCloud2，每点 float64 `timestamp`（UNIX 纳秒），10 Hz，4 线
+#   IMU  /mid360/livox/imu：Mid-360 内置 IMU，加速度单位是 g，约 200 Hz
+# 真值：室内是动捕 /vrpn_client_node/unitree_b1/pose（PoseStamped，约 120 Hz）。
+#   - 跟踪的是机器人刚体，不是 Mid-360 的 IMU，两者之间的外参数据集没有给。
+#     ATE 只比位置，对齐后的影响是杆臂随转动产生的小偏差；数据集作者也是这样评估的（evo_ape --align -r trans_part）。
+#   - 刚体的姿态有大约 27% 的帧会翻转 180°，转换时用 orientation_outlier_deg 去掉这些帧。
+
+output: ~/datasets/liobench/tiers
+
+source:
+  lidar:
+    topic: /mid360/livox/lidar
+    decoder: livox_pointcloud2
+  imu:
+    topic: /mid360/livox/imu
+    acc_unit: g
+  gt:
+    format: bag_pose
+    topic: /vrpn_client_node/unitree_b1/pose
+    orientation_outlier_deg: 30
+
+sensor:
+  model: mid360               # 适配器据此选用各算法自带的 Mid360 配置（base_for）
+  satu_acc: 29.4              # m/s²，Mid-360 IMU 量程 ±3 g
+  satu_gyro: 35.0             # rad/s
+  blind: 0.5                  # m
+  # 雷达在 IMU 坐标系下的位置（T_imu_lidar），Mid-360 出厂值，FAST-LIO / Point-LIO 的 mid360 配置都用这组
+  extrinsic_t: [-0.011, -0.02329, 0.04412]
+  extrinsic_r: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+sequences:
+  indoor_office1:
+    bag: ~/Downloads/IndoorOffice1_dataset.bag      # ROS1 包；gt 话题在同一个包里
+  indoor_office2:
+    bag: ~/datasets/tiers/raw/IndoorOffice2_dataset.bag

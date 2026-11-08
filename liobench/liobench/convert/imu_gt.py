@@ -86,6 +86,61 @@ class CsvGt:
         return d
 
 
+@GT.register("bag_pose")
+class BagPoseGt:
+    """数据包里的位姿话题：geometry_msgs/PoseStamped、nav_msgs/Odometry 或 TransformStamped（topic 指定话题）。"""
+
+    def __init__(self, topic: str, stamp: str = "header"):
+        if stamp not in ("header", "bag"):
+            raise ValueError("stamp must be 'header' or 'bag'")
+        self.topic, self.stamp = topic, stamp
+
+    def read(self, path: Path) -> np.ndarray:
+        from rosbags.highlevel import AnyReader
+        rows = []
+        with AnyReader([path]) as r:
+            conns = [c for c in r.connections if c.topic == self.topic]
+            if not conns:
+                raise KeyError(f"数据包里没有真值话题 {self.topic}")
+            for c, t, raw in r.messages(connections=conns):
+                m = r.deserialize(raw, c.msgtype)
+                if hasattr(m, "transform"):        # TransformStamped
+                    p, q = m.transform.translation, m.transform.rotation
+                else:
+                    pose = m.pose.pose if hasattr(m.pose, "pose") else m.pose  # Odometry / PoseStamped
+                    p, q = pose.position, pose.orientation
+                st = m.header.stamp.sec + m.header.stamp.nanosec * 1e-9 if self.stamp == "header" else t * 1e-9
+                rows.append([st, p.x, p.y, p.z, q.x, q.y, q.z, q.w])
+        return np.array(rows)
+
+
+def drop_orientation_outliers(gt: np.ndarray, max_deg: float) -> np.ndarray:
+    """Drop poses whose orientation jumps more than max_deg from the last kept pose.
+    Motion-capture rigid bodies with symmetric markers flip by 180 deg now and then."""
+    R = quat_to_rot(gt[:, 4:8])
+    cos_max = np.cos(np.radians(max_deg))
+
+    def track(start: int) -> np.ndarray:
+        keep = np.zeros(len(gt), bool)
+        last = start
+        keep[start] = True
+        for i in range(start + 1, len(gt)):
+            if (np.trace(R[last].T @ R[i]) - 1) / 2 >= cos_max:
+                keep[i] = True
+                last = i
+        return keep
+
+    # The first sample may itself be flipped: also start from the first sample that disagrees
+    # with it, and keep whichever track explains more samples.
+    starts = [0]
+    for i in range(1, min(len(gt), 50)):
+        if (np.trace(R[0].T @ R[i]) - 1) / 2 < cos_max:
+            starts.append(i)
+            break
+    best = max((track(s) for s in starts), key=lambda k: k.sum())
+    return gt[best]
+
+
 @GT.register("kitti")
 class KittiGt:
     """KITTI 位姿：每行 12 个数（3x4 行优先），另需 times 文件（每行一个时间）。"""

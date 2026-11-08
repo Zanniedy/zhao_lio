@@ -11,8 +11,25 @@ Visualization Manager:
       Plane Cell Count: 100
       Color: 160; 160; 164
     - Class: rviz_default_plugins/PointCloud2
-      Name: Map (accumulated scans)
+      Name: Voxel map
       Enabled: true
+      Topic:
+        Value: /zhao_lio/map
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Decay Time: 0
+      Size (m): 0.05
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: AxisColor
+      Axis: Z
+      Use Fixed Frame: true
+      Autocompute Value Bounds: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Map (accumulated scans)
+      Enabled: false
       Topic:
         Value: /zhao_lio/cloud_world
         Depth: 5

@@ -1,4 +1,4 @@
-# 所有算法、默认参数、所有已转换的 NarrowWide 序列
+# NarrowWide（Livox MID-70 + VN-100）上的对比，结果在 results/baseline。主测试是 Mid360，见 experiments/mid360.yaml
 name: baseline
 algorithms:
   - zhao_lio                             # 默认是 pointwise_prematch

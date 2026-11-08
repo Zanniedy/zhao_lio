@@ -1,0 +1,79 @@
+{
+  "algorithm": "zhao_lio",
+  "variant": "update_strategy=pointwise",
+  "params": {
+    "update_strategy": "pointwise"
+  },
+  "sequence": "tiers/indoor_office1",
+  "repeat": 0,
+  "rate": 1.0,
+  "status": "ok",
+  "reasons": [],
+  "settings": {
+    "rate": 1.0,
+    "startup_timeout": 30.0,
+    "drain_timeout": 15.0,
+    "warmup": 2.0,
+    "divergence": {
+      "max_speed": 10,
+      "max_jump": 2,
+      "min_coverage": 0.9,
+      "max_ate": 2
+    },
+    "rpe": {
+      "delta": 1,
+      "unit": "m"
+    },
+    "duration": null
+  },
+  "started": "2026-10-30 12:06:36",
+  "applied_params": {
+    "lidar_topic": "/liobench/lidar",
+    "imu_topic": "/liobench/imu",
+    "lidar_type": "livox_custom",
+    "blind_min": 0.5,
+    "acc_norm": 9.81,
+    "satu_acc": 29.4,
+    "satu_gyro": 35.0,
+    "extrinsic_T": [
+      -0.011,
+      -0.02329,
+      0.04412
+    ],
+    "extrinsic_R": [
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0,
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "extrinsic_est_en": false,
+    "timing_csv": "/home/lsy/cs_project/liop/zhao_lio/liobench/results/mid360/zhao_lio/b52eb3a7/tiers_indoor_office1/r0/internal_timing.csv",
+    "update_strategy": "pointwise"
+  },
+  "algo_exit_code": 0,
+  "wall_s": 66.88957547300379,
+  "lidar_frames": 660,
+  "odom_msgs": 651,
+  "frames_done": 651,
+  "latency_mean_ms": 8.275500767799553,
+  "latency_p95_ms": 10.32899999700021,
+  "latency_max_ms": 21.754000001237728,
+  "path_length_m": 31.31688487499865,
+  "internal_mean_ms": 4.023178078341014,
+  "internal_p95_ms": 5.790942,
+  "cpu_mean_pct": 6.576908396946565,
+  "cpu_p95_pct": 11.76,
+  "peak_rss_mb": 97.07,
+  "has_gt": true,
+  "ate_rmse_m": 0.026020763243090213,
+  "gt_matched": 608,
+  "gt_coverage": 0.10913660025130138,
+  "rpe_trans_m": 1.7257820348716968,
+  "rpe_rot_deg": 5.5191941483737414,
+  "finished": "2026-10-30 12:07:48"
+}

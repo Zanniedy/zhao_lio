@@ -1,0 +1,19 @@
+# nav 目录下 3 个自录 Mid-360 包，没有真值：只比较延迟、CPU、内存、发散
+name: nav
+algorithms:
+  - zhao_lio
+  - name: zhao_lio
+    params: {update_strategy: [pointwise]}
+  - point_lio
+  - batch_lio
+  - small_point_lio
+  - super_lio
+  - genz_lio
+sequences: [nav/*]
+repeats: 1
+rate: 1.0
+startup_timeout: 30
+warmup: 2
+drain_timeout: 15
+rpe: {delta: 1, unit: m}
+divergence: {max_speed: 10, max_jump: 2, min_coverage: 0.9, max_ate: 10}

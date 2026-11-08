@@ -1,0 +1,31 @@
+# nav 目录下自录的 Mid-360 包（livox_ros_driver2）：
+#   点云 /livox/lidar：CustomMsg，20 Hz
+#   IMU  /livox/imu：Mid-360 内置 IMU，单位 g，约 200 Hz
+# 没有真值。
+
+output: ~/datasets/liobench/nav
+
+source:
+  lidar:
+    topic: /livox/lidar
+    decoder: livox_custom
+    time_base: header
+  imu:
+    topic: /livox/imu
+    acc_unit: g
+
+sensor:
+  model: mid360
+  satu_acc: 29.4
+  satu_gyro: 35.0
+  blind: 0.5
+  extrinsic_t: [-0.011, -0.02329, 0.04412]
+  extrinsic_r: [1, 0, 0, 0, 1, 0, 0, 0, 1]
+
+sequences:
+  b0522_1744:
+    bag: ~/cs_project/nav/rosbag2_2025_05_22-17_44_21
+  b0522_1908:
+    bag: ~/cs_project/nav/rosbag2_2025_05_22-19_08_51
+  b0109_1422:
+    bag: ~/cs_project/nav/rosbag2_2026_01_09-14_22_57

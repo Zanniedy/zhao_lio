@@ -24,6 +24,7 @@ ZhaoLio::ZhaoLio(const Params& p)
 }
 
 void ZhaoLio::reset() {
+  ++session_;
   status_ = Status::kWaitImuInit;
   map_->clear();
   map_frames_ = 0;

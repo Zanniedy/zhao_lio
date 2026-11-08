@@ -29,6 +29,7 @@ def generate_launch_description():
         DeclareLaunchArgument('config', default_value='mid360', description='mid360 | avia | tracked'),
         DeclareLaunchArgument('update_strategy', default_value='pointwise_prematch'),
         DeclareLaunchArgument('rviz', default_value='true'),
+        
         DeclareLaunchArgument('use_sim_time', default_value='false',
                               description='true when playing a bag with --clock'),
         OpaqueFunction(function=make_nodes),
