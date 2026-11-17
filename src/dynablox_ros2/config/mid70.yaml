@@ -1,0 +1,33 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+    input_topic: /input/lidar
+    world_frame: lio_odom
+    lidar_frame: mid70_link
+    resolution: 0.20
+    voxels_per_side: 16
+    min_range: 0.5
+    max_range: 20.0
+    map_radius: 30.0
+    max_blocks: 3000
+    max_time_gap: 1.0
+    num_threads: 4
+    integration_method: merged
+    tf_wait: 0.8
+    max_pose_speed: 3.0
+    max_pose_angular_speed: 3.0
+    ever_free.counter_to_reset: 150
+    ever_free.temporal_buffer: 2
+    ever_free.burn_in_period: 5
+    ever_free.tsdf_occupancy_threshold: 0.3
+    ever_free.neighbor_connectivity: 26
+    clustering.min_cluster_size: 20
+    clustering.max_cluster_size: 200000
+    clustering.min_extent: 0.0
+    clustering.max_extent: 200000.0
+    clustering.neighbor_connectivity: 6
+    clustering.grow_clusters_twice: false
+    clustering.min_cluster_separation: 0.2
+    clustering.check_cluster_separation_exact: false
+    tracking.min_track_duration: 0
+    tracking.max_tracking_distance: 1.0

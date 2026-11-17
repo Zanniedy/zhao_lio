@@ -4,3 +4,10 @@ log/
 __pycache__/
 *.pyc
 .vscode/
+build_preprocessing/
+install_preprocessing/
+log_preprocessing/
+build_map_3d_to_2d/
+install_map_3d_to_2d/
+log_map_3d_to_2d/
+.pytest_cache/

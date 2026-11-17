@@ -1,0 +1,161 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Ground reference
+      Enabled: true
+      Cell Size: 1
+      Plane Cell Count: 60
+      Color: 100; 100; 100
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 1 Dynablox retained scan - green
+      Enabled: true
+      Topic:
+        Value: /dynablox/static_world
+        Reliability Policy: Best Effort
+        Depth: 2
+      Style: Points
+      Size (Pixels): 3
+      Color Transformer: FlatColor
+      Color: 50; 220; 130
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 2 Removed dynamic clusters - red
+      Enabled: true
+      Topic:
+        Value: /dynablox/dynamic_world
+        Reliability Policy: Best Effort
+        Depth: 2
+      Style: Points
+      Size (Pixels): 5
+      Color Transformer: FlatColor
+      Color: 255; 40; 40
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 3 Unclassified or outside 0.5-20m - yellow
+      Enabled: true
+      Topic:
+        Value: /dynablox/pending_world
+        Reliability Policy: Best Effort
+        Depth: 2
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 255; 210; 50
+      Alpha: 0.5
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 4 Official ever-free point detections - magenta
+      Enabled: false
+      Topic:
+        Value: /dynablox/seeds
+        Reliability Policy: Best Effort
+        Depth: 2
+      Style: Points
+      Size (Pixels): 6
+      Color Transformer: FlatColor
+      Color: 255; 40; 255
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 5 Official ever-free history - blue - capped at 30000
+      Enabled: false
+      Topic:
+        Value: /dynablox/free
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 70; 130; 255
+      Alpha: 0.15
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 6 Raw scan in world - gray - comparison
+      Enabled: false
+      Topic:
+        Value: /dynablox/scan_world
+        Reliability Policy: Best Effort
+        Depth: 2
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 160; 160; 160
+      Decay Time: 0
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 7 Original LIO map - no temporal occupancy cleanup - comparison
+      Enabled: false
+      Topic:
+        Value: /zhao_lio/map
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 170; 170; 170
+      Decay Time: 0
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Official cluster IDs - seed points and track length
+      Enabled: true
+      Topic:
+        Value: /dynablox/clusters
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+    - Class: rviz_default_plugins/Path
+      Name: LIO trajectory
+      Enabled: true
+      Topic:
+        Value: /zhao_lio/path
+        Reliability Policy: Reliable
+        Depth: 1
+      Color: 0; 220; 255
+      Line Style: Lines
+      Line Width: 0.03
+    - Class: rviz_default_plugins/Axes
+      Name: Robot pose
+      Enabled: true
+      Reference Frame: base_link
+      Length: 0.7
+      Radius: 0.04
+    - Class: rviz_default_plugins/PointCloud2
+      Name: 8 Voxblox TSDF non-dynamic surface - optional history
+      Enabled: false
+      Topic:
+        Value: /dynablox/static_map
+        Reliability Policy: Reliable
+        Durability Policy: Transient Local
+        Depth: 1
+      Style: Points
+      Size (Pixels): 3
+      Color Transformer: FlatColor
+      Color: 50; 180; 130
+      Decay Time: 0
+  Global Options:
+    Fixed Frame: lio_odom
+    Background Color: 25; 25; 30
+    Frame Rate: 20
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/Measure
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Target Frame: base_link
+      Distance: 25
+      Pitch: 0.75
+      Yaw: 0.8
+      Focal Point:
+        X: 3
+        Y: 0
+        Z: 0
+Window Geometry:
+  Width: 1500
+  Height: 950
+  X: 80
+  Y: 40

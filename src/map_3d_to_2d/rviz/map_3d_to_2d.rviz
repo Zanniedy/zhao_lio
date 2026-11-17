@@ -1,0 +1,57 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+  - Class: map_3d_to_2d/RvizPanel
+    Name: Map Z Range
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: false
+      Cell Size: 1
+      Plane Cell Count: 100
+      Color: 160; 160; 164
+    - Class: rviz_default_plugins/PointCloud2
+      Name: LIO map
+      Enabled: false
+      Topic:
+        Value: /zhao_lio/map
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Decay Time: 0
+      Size (m): 0.04
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: AxisColor
+      Axis: Z
+      Use Fixed Frame: true
+      Autocompute Value Bounds: true
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Height grid - black occupied, gray unknown
+      Enabled: true
+      Value: true
+      Topic:
+        Value: /map2d/markers
+        Depth: 1
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Namespaces:
+        height_grid: true
+  Global Options:
+    Fixed Frame: lio_odom
+    Background Color: 30; 30; 30
+    Frame Rate: 30
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/Measure
+  Views:
+    Current:
+      Class: rviz_default_plugins/TopDownOrtho
+      Scale: 60
+      X: 0
+      Y: 0

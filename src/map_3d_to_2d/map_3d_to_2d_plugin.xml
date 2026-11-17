@@ -1,0 +1,7 @@
+<library path="map_3d_to_2d_panel">
+  <class name="map_3d_to_2d/RvizPanel"
+         type="map_3d_to_2d::RvizPanel"
+         base_class_type="rviz_common::Panel">
+    <description>Adjust the Z minimum and maximum used by the point-cloud occupancy mapper.</description>
+  </class>
+</library>

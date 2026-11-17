@@ -74,6 +74,17 @@ cd liobench && source /opt/ros/humble/setup.bash
 
 这条命令会编译、跑测试、和上一版对比，再按门槛判定这一版通过还是不通过。第一次使用前要先按 [`liobench/README.md`](liobench/README.md) 装好 Python 环境，并编译参考算法。教程见 [`liobench/docs/TUTORIAL.md`](liobench/docs/TUTORIAL.md)。
 
+## 输入预处理与动态点云
+
+新增 `zhao_lio_pointcloud_preprocessor`、官方核心移植 `dynablox_ros2` 和带高度滑块的
+`map_3d_to_2d`。基础过滤送入 LIO，Dynablox 依赖 LIO 位姿独立输出去动态点云和 TSDF
+表面，不反向接回 LIO，也不修改原 LIO 历史地图。构建、回放、配置和验证见
+[`docs/preprocessing.md`](docs/preprocessing.md)。回放入口：
+
+```bash
+bash scripts/replay_preprocessed.sh /path/to/rosbag2
+```
+
 ## 许可证
 
 `OctVoxMap` 移植自 Super-LIO（GPLv3），所以 zhao_lio 整体按 GPLv3 发布，见 `LICENSE`。`src/zhao_lio_core/third_party/tsl/` 是 Tessil 的 robin-map 和 Martin Ankerl 的 robin_hood（都是 MIT 许可证）。

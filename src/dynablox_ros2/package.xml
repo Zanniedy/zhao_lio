@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>dynablox_ros2</name>
+  <version>0.1.0</version>
+  <description>ROS2 replay adapter for the upstream ETH ASL Dynablox detection core.</description>
+  <maintainer email="lsy@example.com">lsy</maintainer>
+  <license>BSD-3-Clause</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>tf2_ros</depend>
+  <depend>visualization_msgs</depend>
+  <depend>eigen</depend>
+  <depend>libpcl-all-dev</depend>
+  <depend>libgoogle-glog-dev</depend>
+  <depend>libprotobuf-dev</depend>
+  <build_depend>protobuf-compiler</build_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>zhao_lio_pointcloud_preprocessor</exec_depend>
+  <exec_depend>zhao_lio_ros2</exec_depend>
+  <exec_depend>map_3d_to_2d</exec_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>rclpy</test_depend>
+  <test_depend>python3-pytest</test_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>

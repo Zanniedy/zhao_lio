@@ -1,0 +1,48 @@
+/**:
+  ros__parameters:
+    use_sim_time: true
+    lidar_topic: /zhao_lio_x5/points/optimized
+    imu_topic: /input/imu
+    lidar_type: pointcloud2
+    odom_frame: lio_odom
+    body_frame: imu_link
+    publish_tf: true
+    traj_path: ""
+    timing_csv: ""
+    map_publish_period: 1.0
+    map_save_dir: ""
+    map_autosave_period: 0.0
+
+    update_strategy: pointwise_prematch
+    num_threads: 0
+    publish_pointwise_odom: false
+    blind_min: 0.3
+    blind_max: 100.0
+    point_filter_num: 1
+    downsample_size: 0.5
+    downsample_parallel: false
+    map_resolution: 0.5
+    map_capacity: 1000000
+    init_map_frames: 3
+    plane_thr: 0.1
+    match_s: 81.0
+    rematch_thr: 0.1
+    laser_point_cov: 0.01
+    imu_meas_omg_cov: 0.01
+    imu_meas_acc_cov: 0.01
+    vel_cov: 20.0
+    omg_cov: 1000.0
+    acc_cov: 500.0
+    bg_cov: 0.0001
+    ba_cov: 0.0001
+    gravity_norm: 9.81
+    acc_norm: 9.81
+    check_satu: true
+    satu_gyro: 35.0
+    satu_acc: 3.0
+    imu_init_num: 100
+    extrinsic_est_en: false
+    extrinsic_T: [-0.12199175, 0.08788337, 1.19891390]
+    extrinsic_R: [0.999886834, -0.001003623, 0.015010403,
+                  0.000152232, 0.998396131, 0.056613970,
+                  -0.015043148, -0.056605278, 0.998283300]

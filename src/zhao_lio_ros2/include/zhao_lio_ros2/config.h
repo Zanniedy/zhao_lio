@@ -17,6 +17,7 @@ struct NodeConfig {
   std::string map_save_dir;         // PCD maps go here; empty disables saving
   double map_autosave_period = 30.0;  // s; <= 0 saves only on exit / service call
   double acc_scale = 1.0;  // raw IMU acc -> m/s^2
+  bool publish_tf = true;
 };
 
 inline std::string expand_home(const std::string& path) {
@@ -33,6 +34,7 @@ inline NodeConfig load_config(rclcpp::Node& n) {
   c.lidar_type = n.declare_parameter<std::string>("lidar_type", "livox_custom");  // or "pointcloud2"
   c.odom_frame = n.declare_parameter<std::string>("odom_frame", "odom");
   c.body_frame = n.declare_parameter<std::string>("body_frame", "body");
+  c.publish_tf = n.declare_parameter<bool>("publish_tf", true);
   c.traj_path = n.declare_parameter<std::string>("traj_path", "");
   c.timing_csv = n.declare_parameter<std::string>("timing_csv", "");
   c.map_publish_period = n.declare_parameter<double>("map_publish_period", c.map_publish_period);

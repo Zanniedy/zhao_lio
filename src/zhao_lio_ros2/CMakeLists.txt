@@ -46,6 +46,14 @@ target_link_libraries(zhao_lio_replay zhao_lio_core::zhao_lio_core zhao_lio_back
 ament_target_dependencies(zhao_lio_replay ${ROS_DEPS} rosbag2_cpp)
 
 
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_input_contract test/test_input_contract.cpp)
+  target_include_directories(test_input_contract PRIVATE include)
+  target_link_libraries(test_input_contract zhao_lio_core::zhao_lio_core)
+  ament_target_dependencies(test_input_contract ${ROS_DEPS})
+endif()
+
 install(TARGETS zhao_lio_node zhao_lio_replay DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY config launch rviz DESTINATION share/${PROJECT_NAME})
 ament_package()

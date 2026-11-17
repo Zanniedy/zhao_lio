@@ -156,7 +156,7 @@ class ZhaoLioNode : public rclcpp::Node {
     tf.transform.translation.x = r.state.pos.x(); tf.transform.translation.y = r.state.pos.y(); tf.transform.translation.z = r.state.pos.z();
     const Eigen::Quaterniond q(r.state.rot);
     tf.transform.rotation.x = q.x(); tf.transform.rotation.y = q.y(); tf.transform.rotation.z = q.z(); tf.transform.rotation.w = q.w();
-    tf_->sendTransform(tf);
+    if (cfg_.publish_tf) tf_->sendTransform(tf);
 
     geometry_msgs::msg::PoseStamped ps;
     ps.header = tf.header;

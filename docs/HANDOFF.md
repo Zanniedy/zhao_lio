@@ -1,5 +1,14 @@
 # zhao_lio 交接文档
 
+## 2026-11-17：输入预处理与 Dynablox 迁回
+
+从 robot 工作区迁入前处理、官方核心 Dynablox ROS2 分支和 PCD→2D 高度面板，
+入口 `bash scripts/replay_preprocessed.sh /path/to/rosbag2`，默认本机 domain184。
+构建与配置见 `docs/preprocessing.md`；使用独立 `build_preprocessing/install_preprocessing`，
+不覆盖旧安装。36项C++、6项ROS接口测试及28秒无界面实包链路检查通过。
+不反向把依赖 LIO 位姿的动态检测结果接回 LIO，不清理原LIO历史地图。
+原工作区4个核心/后端未提交文件保留，不属于此次迁移提交。下文为历史交接内容。
+
 更新日期：2026-10-29
 
 > 2026-11-01 新增了位姿图后端 `src/zhao_lio_backend/`（回环、先验图定位、重定位），交接见 [`HANDOFF-backend.md`](HANDOFF-backend.md)。

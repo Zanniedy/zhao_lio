@@ -1,0 +1,132 @@
+Panels:
+  - Class: rviz_common/Displays
+    Name: Displays
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Class: rviz_default_plugins/Grid
+      Name: Grid
+      Enabled: true
+      Cell Size: 1
+      Plane Cell Count: 100
+      Color: 160; 160; 164
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Raw input cloud
+      Enabled: false
+      Topic:
+        Value: /input/lidar
+        Depth: 5
+        Reliability Policy: Best Effort
+        History Policy: Keep Last
+      Decay Time: 0.5
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: FlatColor
+      Color: 90; 90; 90
+      Use Fixed Frame: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Optimized input cloud
+      Enabled: true
+      Topic:
+        Value: /zhao_lio_x5/points/optimized
+        Depth: 5
+        Reliability Policy: Best Effort
+        History Policy: Keep Last
+      Decay Time: 0.5
+      Style: Points
+      Size (Pixels): 3
+      Color Transformer: FlatColor
+      Color: 0; 255; 120
+      Use Fixed Frame: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Removed dynamic points - red
+      Enabled: true
+      Topic:
+        Value: /zhao_lio_x5/points/dynamic
+        Depth: 5
+        Reliability Policy: Best Effort
+        History Policy: Keep Last
+      Decay Time: 0.5
+      Style: Points
+      Size (Pixels): 5
+      Color Transformer: FlatColor
+      Color: 255; 40; 40
+      Use Fixed Frame: true
+    - Class: rviz_default_plugins/MarkerArray
+      Name: Motion clusters - ID speed state
+      Enabled: true
+      Topic:
+        Value: /zhao_lio_x5/dynamic_filter/clusters
+        Depth: 1
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Current optimized scan in map
+      Enabled: false
+      Topic:
+        Value: /zhao_lio/cloud_world
+        Depth: 5
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+      Decay Time: 0
+      Style: Points
+      Size (Pixels): 3
+      Color Transformer: AxisColor
+      Axis: Z
+      Use Fixed Frame: true
+    - Class: rviz_default_plugins/PointCloud2
+      Name: Accumulated map
+      Enabled: false
+      Topic:
+        Value: /zhao_lio/map
+        Depth: 5
+        Durability Policy: Transient Local
+        Reliability Policy: Reliable
+        History Policy: Keep Last
+      Decay Time: 0
+      Style: Points
+      Size (Pixels): 2
+      Color Transformer: AxisColor
+      Axis: Z
+      Use Fixed Frame: true
+    - Class: rviz_default_plugins/Path
+      Name: zhao_lio trajectory
+      Enabled: true
+      Topic:
+        Value: /zhao_lio/path
+        Reliability Policy: Reliable
+      Color: 255; 85; 0
+      Line Style: Lines
+      Line Width: 0.03
+    - Class: rviz_default_plugins/Odometry
+      Name: zhao_lio odometry
+      Enabled: true
+      Topic:
+        Value: /zhao_lio/odom
+        Reliability Policy: Reliable
+      Keep: 1
+      Shape:
+        Value: Axes
+        Axes Length: 0.5
+        Axes Radius: 0.05
+    - Class: rviz_default_plugins/TF
+      Name: TF
+      Enabled: true
+      Show Names: true
+  Global Options:
+    Fixed Frame: lio_odom
+    Background Color: 30; 30; 30
+    Frame Rate: 30
+  Tools:
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/Measure
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 30
+      Focal Point: {X: 0, Y: 0, Z: 0}
+      Pitch: 0.9
+      Yaw: 0.8
+      Target Frame: <Fixed Frame>
